@@ -1,0 +1,2168 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BRICKS PRODUCTION 報價系統 v1.0</title>
+<meta name="description" content="BRICKS PRODUCTION 影像製作報價系統">
+<meta name="version" content="1.0.0">
+<meta name="build" content="2026-07-02">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== ROOT ===== */
+:root{
+  --ink:#1a1a1a;--ink-s:#4a4a4a;--ink-m:#8a8a8a;
+  --acc:#c0392b;--ack:#96281b;
+  --paper:#fff;--bg:#f7f5f2;--ti:#ece9e3;--brd:#dedad3;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;font-size:14px;color:var(--ink);background:#e2dfd9}
+input,textarea,select,button{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer}
+
+/* ===== APP LAYOUT ===== */
+.app{display:grid;grid-template-columns:430px 1fr;min-height:100vh}
+aside{background:var(--bg);border-right:1px solid var(--brd);display:flex;flex-direction:column;height:100vh;position:sticky;top:0;overflow:hidden}
+.tab-bar{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);border-bottom:1px solid var(--brd);flex-shrink:0}
+.tb{padding:9px 2px;font-size:11px;font-weight:500;background:var(--ti);border:none;border-right:1px solid var(--brd);color:var(--ink-m);cursor:pointer;transition:.15s}
+.tb:nth-child(3n){border-right:none}
+.tb:nth-child(-n+3){border-bottom:1px solid var(--brd)}
+.tb.on{background:var(--bg);color:var(--acc);font-weight:700}
+.panel-body{flex:1;overflow-y:auto}
+.pane{display:none;padding:14px}
+.pane.on{display:block}
+
+/* ===== FORMS ===== */
+.fs{margin-bottom:16px}
+.st{font-size:11px;font-weight:700;letter-spacing:.07em;color:var(--ink-m);padding-bottom:5px;border-bottom:1px solid var(--brd);margin-bottom:9px}
+.fr{margin-bottom:7px}
+.fr label{display:block;font-size:11px;color:var(--ink-s);margin-bottom:2px}
+.fi{width:100%;padding:5px 7px;border:1px solid var(--brd);border-radius:4px;background:var(--paper);transition:border-color .15s}
+.fi:focus{outline:none;border-color:var(--acc)}
+textarea.fi{resize:vertical}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px}
+.r2 .fr{margin:0}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:7px}
+.r3 .fr{margin:0}
+
+/* ===== BUTTONS ===== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:6px 12px;border-radius:4px;font-size:12px;font-weight:500;border:none;cursor:pointer;transition:.15s}
+.bp{background:var(--ink);color:#fff}.bp:hover{background:#333}
+.ba{background:var(--acc);color:#fff}.ba:hover{background:var(--ack)}
+.bg{background:#ede9e3;color:var(--ink);border:1px solid var(--brd)}.bg:hover{background:#e0dbd3}
+.bd{background:none;color:var(--acc);border:1px solid var(--acc)}.bd:hover{background:#fef2f2}
+.blk{width:100%;margin-bottom:5px}
+.sm{padding:3px 9px;font-size:11px}
+.bgrp{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+
+/* ===== SUMMARY BAR ===== */
+.sum-bar{background:#1e1c1a;color:#fff;padding:6px 12px;font-size:11px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;flex-shrink:0}
+.si{display:flex;gap:3px;align-items:center}
+.sl{color:#777}
+.sv{color:#fbbf24;font-weight:700}
+.stot{color:#fff;font-weight:700;font-size:13px;margin-left:auto}
+
+/* ===== SECTION EDITOR ===== */
+.sec-blk{border:1px solid var(--brd);border-radius:5px;margin-bottom:10px;overflow:hidden;background:var(--paper)}
+.sec-hd{display:flex;align-items:center;gap:5px;padding:6px 9px;background:#f0ede8}
+.sec-ltr{width:22px;height:22px;border-radius:2px;background:var(--ink);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sec-nm-inp{flex:1;min-width:0;border:none;background:none;font-size:12px;font-weight:700;outline:none;overflow:hidden;text-overflow:ellipsis}
+.sec-pkg{display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;margin-left:6px;gap:1px}
+.sec-pkg label{font-size:10px;color:var(--ink-m);white-space:nowrap}
+.sec-pkg input[type=text]{width:90px;padding:2px 5px;border:1px solid var(--brd);border-radius:3px;font-size:12px;font-weight:700;text-align:right;flex-shrink:0}
+.sec-pkg-profit{display:flex;gap:6px;font-size:10px;white-space:nowrap;min-height:13px}
+.sec-pkg-profit .pp-cost{color:var(--ink-m)}
+.sec-pkg-profit .pp-pos{color:#059669;font-weight:700}
+.sec-pkg-profit .pp-neg{color:var(--acc);font-weight:700}
+.sec-badge{font-size:11px;font-weight:700;color:var(--acc);padding:1px 5px;background:#fef2f2;border-radius:2px}
+.sec-cost-info{display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;margin-left:4px;padding:1px 6px;background:#f5f2ed;border-radius:3px;border:1px solid var(--brd)}
+.sec-cost-lbl{font-size:9px;color:var(--ink-m);line-height:1.2}
+.sec-cost-val{font-size:11px;font-weight:700;color:var(--ink-s);white-space:nowrap}
+.sec-cost-val.ok{color:#059669}
+.sec-cost-val.over{color:var(--acc)}
+.sec-profit-info{display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;margin-left:3px;padding:1px 6px;border-radius:3px;border:1px solid}
+.sec-profit-info.prof-pos{background:#f0fdf4;border-color:#86efac}
+.sec-profit-info.prof-neg{background:#fef2f2;border-color:#fca5a5}
+.sec-profit-info.prof-na{background:#f5f2ed;border-color:var(--brd)}
+.sec-profit-val{font-size:12px;font-weight:700;white-space:nowrap}
+.prof-pos .sec-profit-val{color:#059669}
+.prof-neg .sec-profit-val{color:var(--acc)}
+.sec-hd-btn{display:flex;gap:1px}
+.sec-hd-btn button{width:20px;height:20px;border:none;border-radius:2px;background:none;color:var(--ink-m);font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sec-hd-btn button:hover{background:var(--brd);color:var(--ink)}
+.sec-hd-btn button.dl:hover{color:var(--acc)}
+.item-row{border-top:1px solid var(--brd);padding:6px 9px;background:var(--paper)}
+.item-row:first-child{border-top:none}
+.item-tr{display:grid;grid-template-columns:22px 1fr auto;gap:3px;align-items:center;margin-bottom:3px}
+.item-seq{font-size:10px;color:var(--ink-m);font-weight:600;text-align:center}
+.item-nm{width:100%;border:none;background:none;font-size:12px;font-weight:600;outline:none}
+.item-nm::placeholder{color:var(--ink-m);font-weight:400}
+.item-btns button{width:18px;height:18px;border:none;border-radius:2px;background:none;color:var(--ink-m);font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.item-btns button:hover{background:var(--brd)}
+.item-btns button.dl:hover{color:var(--acc)}
+.item-btns{display:flex;gap:1px}
+.item-desc{width:calc(100% - 22px);margin-left:22px;display:block;border:1px solid var(--brd);border-radius:2px;padding:2px 5px;font-size:11px;resize:vertical;min-height:24px;background:#fafaf8;color:var(--ink-s)}
+.item-nr{display:grid;grid-template-columns:22px 70px 60px 80px 1fr;gap:3px;margin-top:3px;align-items:end}
+.item-nr label{display:block;font-size:9px;color:var(--ink-m);margin-bottom:1px}
+.item-nr input{width:100%;border:1px solid var(--brd);border-radius:2px;padding:2px 4px;font-size:11px;background:var(--paper)}
+.item-cost-disp{font-size:10px;font-weight:700;color:var(--acc);text-align:right}
+.add-item-row2{display:flex;gap:0;border-top:1px dashed var(--brd)}
+.add-item-db{flex:1.4;padding:6px 9px;font-size:11px;font-weight:700;border:none;border-right:1px solid var(--brd);background:#fef2f2;color:var(--acc);cursor:pointer;text-align:left}
+.add-item-db:hover{background:#fde4e4}
+.add-item-manual{flex:1;padding:6px 9px;font-size:10px;border:none;background:none;color:var(--ink-m);cursor:pointer;text-align:left}
+.add-item-manual:hover{background:var(--ti);color:var(--ink)}
+.fn-wrap{padding:3px 9px 7px}
+.fn-wrap label{font-size:9px;color:var(--ink-m)}
+.fn-wrap input{width:100%;font-size:11px;border:1px solid var(--brd);border-radius:2px;padding:2px 5px;margin-top:1px}
+.sec-empty-hint{padding:14px 9px;text-align:center;font-size:11px;color:var(--ink-m);font-style:italic;background:#fafaf8}
+
+/* ===== PRESET BAR ===== */
+.preset-bar{background:linear-gradient(135deg,#1e1c1a,#2c2926);border-radius:6px;padding:10px;margin-bottom:10px}
+.preset-bar-title{font-size:11px;font-weight:700;color:#aaa;letter-spacing:.05em;margin-bottom:7px}
+#presetChips{display:flex;flex-wrap:wrap;gap:5px}
+.preset-chip{display:flex;align-items:center;gap:4px;padding:5px 9px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid #444;background:#2a2724;color:#ccc;transition:.15s;white-space:nowrap}
+.preset-chip:hover{border-color:var(--acc);color:#fff;background:#3a2a28}
+.preset-chip .pc-icon{font-size:13px}
+.preset-chip .pc-desc{display:none;font-size:9px;color:#888;font-weight:400}
+
+/* ===== PRESET MANAGER MODAL ===== */
+.pm-item{display:flex;align-items:flex-start;gap:8px;padding:8px;border:1px solid var(--brd);border-radius:5px;margin-bottom:6px;background:var(--paper)}
+.pm-icon{font-size:18px;line-height:1;flex-shrink:0;margin-top:2px}
+.pm-body{flex:1;min-width:0}
+.pm-name{font-size:13px;font-weight:700}
+.pm-desc{font-size:11px;color:var(--ink-s);margin-top:1px}
+.pm-secs{font-size:10px;color:var(--ink-m);margin-top:3px}
+.pm-actions{display:flex;flex-direction:column;gap:3px;align-items:flex-end;flex-shrink:0}
+.pm-apply-btn{background:var(--acc);color:#fff;border:none;border-radius:3px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
+.pm-apply-btn:hover{background:var(--ack)}
+
+/* ===== PDF CONTROLS ===== */
+.pdf-ctrl-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:8px}
+.pdf-chk{display:flex;align-items:center;gap:5px;font-size:11px;padding:4px 6px;background:var(--paper);border:1px solid var(--brd);border-radius:3px;cursor:pointer}
+.pdf-chk input[type=checkbox]{cursor:pointer;width:13px;height:13px;accent-color:var(--acc)}
+
+/* ===== BRAND ASSETS ===== */
+.ba-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.ba-card{border:1px solid var(--brd);border-radius:5px;padding:10px;background:var(--paper)}
+.ba-card h4{font-size:11px;font-weight:700;color:var(--ink-s);margin-bottom:6px}
+.ba-preview{height:52px;display:flex;align-items:center;justify-content:center;background:#f5f2ed;border-radius:3px;margin-bottom:6px;overflow:hidden}
+.ba-preview img{max-height:48px;max-width:100%;object-fit:contain}
+.ba-placeholder{font-size:10px;color:var(--ink-m)}
+.ba-card input[type=file]{width:100%;font-size:10px}
+
+/* ===== SAVED LIST ===== */
+.ss-wrap{padding:9px 12px;border-bottom:1px solid var(--brd)}
+.ss-wrap input{width:100%;padding:5px 7px;border:1px solid var(--brd);border-radius:4px}
+.sqi{padding:9px 12px;border-bottom:1px solid var(--brd);cursor:pointer}
+.sqi:hover{background:#f5f2ed}
+.sqi.cur{background:#fef9f9;border-left:3px solid var(--acc)}
+.sq-no{font-size:10px;color:var(--ink-m)}
+.sq-nm{font-weight:700;font-size:12px}
+.sq-mt{font-size:10px;color:var(--ink-m);margin-top:1px}
+.sq-tt{font-weight:700;color:var(--acc)}
+.el{padding:20px;text-align:center;color:var(--ink-m);font-size:13px}
+
+/* ===== MASTER DATABASE ===== */
+.mdb-toolbar{display:flex;gap:6px;flex-wrap:wrap}
+.mdb-toolbar input[type=search]{flex:2;min-width:120px}
+.mdb-toolbar select{flex:1;min-width:100px}
+.mdb-cat-group{margin-bottom:10px}
+.mdb-cat-hd{display:flex;align-items:center;gap:6px;padding:6px 9px;background:#2c2926;color:#fff;border-radius:4px 4px 0 0;font-size:12px;font-weight:700}
+.mdb-cat-count{margin-left:auto;font-size:10px;color:#aaa;font-weight:400}
+.mdb-item{display:grid;grid-template-columns:24px 1fr auto;gap:6px;align-items:start;padding:7px 9px;border:1px solid var(--brd);border-top:none;background:var(--paper)}
+.mdb-item:hover{background:#faf8f4}
+.mdb-fav-btn{width:22px;height:22px;border:none;background:none;cursor:pointer;font-size:14px;color:#ddd;display:flex;align-items:center;justify-content:center}
+.mdb-fav-btn.on{color:#f59e0b}
+.mdb-item-body{min-width:0}
+.mdb-item-top{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.mdb-item-id{font-size:10px;color:var(--ink-m);font-weight:700;flex-shrink:0}
+.mdb-item-name{font-size:12px;font-weight:700}
+.mdb-item-sub{font-size:9px;color:var(--ink-m);background:#f0ede8;border-radius:2px;padding:0 4px}
+.mdb-item-desc{font-size:11px;color:var(--ink-s);margin-top:2px;line-height:1.45}
+.mdb-item-meta{font-size:10px;color:var(--ink-m);margin-top:3px;display:flex;gap:10px}
+.mdb-item-price{font-weight:700;color:var(--acc)}
+.mdb-item-actions{display:flex;flex-direction:column;gap:3px;align-items:flex-end}
+.mdb-item-actions button{font-size:10px;padding:2px 7px;white-space:nowrap}
+.mdb-item.inactive{opacity:.45}
+.mdb-edit-row{grid-column:1/-1;background:#f7f5f0;border-radius:4px;padding:8px;margin-top:5px;display:none}
+.mdb-edit-row.show{display:block}
+.mdb-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}
+.mdb-edit-grid .fr{margin:0}
+.mdb-edit-grid label{font-size:10px}
+
+/* ===== ITEM PICKER MODAL ===== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal-box{background:var(--paper);border-radius:8px;width:100%;max-width:680px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.modal-hd{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--brd)}
+.modal-hd h3{font-size:15px;font-weight:700;flex:1}
+.modal-close{width:28px;height:28px;border:none;background:#f0ede8;border-radius:4px;cursor:pointer;font-size:14px;color:var(--ink-s)}
+.modal-close:hover{background:#e0dbd3}
+.modal-body{flex:1;overflow-y:auto;padding:12px 18px}
+.modal-toolbar{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.modal-toolbar input[type=search]{flex:2;min-width:120px;padding:6px 8px;border:1px solid var(--brd);border-radius:4px}
+.modal-toolbar select{flex:1;min-width:90px;padding:6px 8px;border:1px solid var(--brd);border-radius:4px}
+.picker-item{display:flex;align-items:flex-start;gap:8px;padding:8px;border:1px solid var(--brd);border-radius:5px;margin-bottom:5px;cursor:pointer;transition:.1s}
+.picker-item:hover{background:#faf8f4;border-color:#c8c2b8}
+.picker-item.checked{background:#fef2f2;border-color:var(--acc)}
+.picker-item input[type=checkbox]{margin-top:2px;width:15px;height:15px;accent-color:var(--acc);flex-shrink:0}
+.picker-item-info{flex:1;min-width:0}
+.picker-item-top{display:flex;align-items:baseline;gap:6px}
+.picker-item-name{font-size:13px;font-weight:700}
+.picker-item-spec{font-size:10px;color:var(--ink-m)}
+.picker-item-desc{font-size:11px;color:var(--ink-s);margin-top:2px;line-height:1.4}
+.picker-item-price{font-size:12px;font-weight:700;color:var(--acc);white-space:nowrap;flex-shrink:0}
+.picker-cat-hd{font-size:11px;font-weight:700;color:var(--ink-m);letter-spacing:.05em;margin:12px 0 6px;padding-bottom:3px;border-bottom:1px solid var(--brd)}
+.picker-cat-hd:first-child{margin-top:0}
+.modal-ft{display:flex;align-items:center;gap:10px;padding:12px 18px;border-top:1px solid var(--brd);background:#faf8f4;border-radius:0 0 8px 8px}
+.modal-ft-info{font-size:12px;color:var(--ink-s);flex:1}
+.modal-ft-target{display:flex;align-items:center;gap:6px;font-size:11px}
+.modal-ft-target select{padding:4px 6px;border:1px solid var(--brd);border-radius:3px;font-size:11px}
+
+
+.main{display:flex;flex-direction:column;min-height:100vh}
+.info-bar{background:#1e1c1a;color:#fff;padding:5px 12px;font-size:11px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.ib-n{font-weight:700;letter-spacing:.04em}
+.ib-t{font-weight:700;color:#fbbf24;margin-left:auto;font-size:13px}
+.toolbar{background:#2c2926;color:#fff;padding:7px 14px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;position:sticky;top:0;z-index:100}
+.tlbl{font-size:11px;color:#888;white-space:nowrap}
+.toolbar input[type=text]{padding:4px 7px;border-radius:3px;border:1px solid #555;background:#3a3632;color:#fff;font-size:11px;width:180px}
+.tsp{flex:1}
+.tn{background:#3a3632;color:#bbb;border:1px solid #555;border-radius:3px;padding:4px 11px;font-size:11px;cursor:pointer}
+.tn:hover{background:#4a4642}
+.tp{background:var(--acc);color:#fff;border:none;border-radius:3px;padding:5px 16px;font-size:12px;font-weight:700;cursor:pointer}
+.tp:hover{background:var(--ack)}
+.tf{font-size:11px;color:#fbbf24;font-weight:500}
+#pages{flex:1;padding:24px 18px;display:flex;flex-direction:column;align-items:center;gap:20px}
+.eh{color:var(--ink-m);font-size:14px;padding:50px 20px;text-align:center}
+
+/* ===== MISC ===== */
+.hidden{display:none!important}
+.tip{font-size:10px;color:var(--ink-m);line-height:1.5;margin-top:3px}
+.ssec{margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--brd)}
+.ssec:last-child{border-bottom:none}
+.ced{border:1px solid var(--brd);border-radius:3px;min-height:160px;padding:7px;font-size:11px;line-height:1.75;background:var(--paper)}
+.ced:focus{outline:1px solid var(--acc)}
+.vcs{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.vc{background:#edeae4;border:1px solid var(--brd);border-radius:2px;padding:1px 7px;font-size:10px;cursor:pointer;font-family:monospace}
+.vc:hover{background:#e0dbd3}
+
+/* ======================================
+   A4 PAGE STYLES
+   ====================================== */
+.page{
+  width:210mm;min-height:297mm;
+  background:var(--paper);
+  padding:12mm 13mm 13mm;
+  box-shadow:0 3px 16px rgba(0,0,0,.22);
+  position:relative;
+  display:flex;flex-direction:column;
+  font-family:'Noto Sans TC',sans-serif;
+  color:var(--ink);
+  page-break-after:always;break-after:page;
+}
+
+/* Page header */
+.ph{display:grid;grid-template-columns:1fr auto;align-items:start;padding-bottom:5pt;border-bottom:2pt solid var(--ink);margin-bottom:3.5mm}
+.ph-left{display:flex;align-items:center;gap:9pt}
+.ph-logo img{height:38pt;max-width:130pt;object-fit:contain}
+.ph-logo-box{width:38pt;height:38pt;background:var(--acc);border-radius:2pt;display:flex;align-items:center;justify-content:center}
+.ph-co h1{font-size:12.5pt;font-weight:700;letter-spacing:.03em;font-family:'Noto Serif TC',serif;line-height:1.2}
+.ph-co p{font-size:7pt;color:var(--ink-s);margin-top:2pt;line-height:1.7}
+.ph-right{text-align:right}
+.ph-title{font-size:19pt;font-weight:700;letter-spacing:.18em;font-family:'Noto Serif TC',serif}
+.ph-meta{font-size:7pt;color:var(--ink-s);margin-top:3pt;line-height:1.75;text-align:right}
+
+/* Customer table */
+.ct{width:100%;border-collapse:collapse;font-size:8pt;margin-bottom:2.5mm}
+.ct td{border:.6pt solid #b4b0a8;padding:3.5pt 6pt;vertical-align:top}
+.ct .lbl{background:#f0ede8;color:var(--ink-m);font-size:7pt;white-space:nowrap;width:13%}
+.ct .val{font-weight:600}
+
+/* Film row */
+.frow{display:flex;border:.6pt solid #b4b0a8;margin-bottom:2.5mm;font-size:8pt}
+.fc{padding:3.5pt 7pt;display:flex;align-items:center;gap:5pt;border-right:.6pt solid #b4b0a8}
+.fc:last-child{border-right:none;flex:1}
+.fl{color:var(--ink-m);font-size:7pt;white-space:nowrap}
+.fv{font-weight:600}
+
+/* Quote table */
+.qt{width:100%;border-collapse:collapse;font-size:8pt}
+.qt th{background:var(--ink);color:#fff;padding:4pt 5.5pt;font-size:7.5pt;font-weight:600;letter-spacing:.04em;border:.6pt solid var(--ink);text-align:center;white-space:nowrap}
+.qt td{border:.6pt solid #bbb8b0;padding:3.5pt 5.5pt;vertical-align:top}
+/* col widths */
+.cno{width:19pt;text-align:center;color:var(--ink-m);font-size:7.5pt}
+.cnm{width:64pt;font-weight:600;line-height:1.4;font-size:8pt}
+.cds{color:var(--ink-s);font-size:7.5pt;line-height:1.55}
+.cqt{width:22pt;text-align:center;white-space:nowrap;font-size:8pt}
+.cut{width:18pt;text-align:center;white-space:nowrap;font-size:8pt}
+.cam{width:58pt;text-align:right;font-weight:700;white-space:nowrap;vertical-align:top;font-size:8pt}
+/* Section header row */
+.sh td{background:#3d3a36;color:#fff;font-weight:700;font-size:8.5pt;letter-spacing:.05em;padding:3.5pt 7pt;vertical-align:middle;text-align:center}
+.sh td>div{width:100%}
+.sh .sh-tot{color:#fbbf24;font-size:9pt;font-weight:700;white-space:nowrap}
+/* footnote row */
+.fn td{background:#f8f6f2;font-size:7pt;color:var(--acc);font-style:italic;padding:2.5pt 7pt}
+/* Package amount row — bottom of each section */
+.pkg-amt-row td{background:#f0ede8;padding:4pt 8pt;border-top:1pt solid #c4bfb8;text-align:right}
+.pkg-amt-label{font-size:7.5pt;color:#666;margin-right:10pt;font-style:italic}
+.pkg-amt-val{font-size:10.5pt;font-weight:700;color:var(--ink)}
+
+/* Bottom area */
+.bot{margin-top:auto;padding-top:3mm;font-size:8pt}
+.bot-grid{display:grid;grid-template-columns:1fr 155pt;gap:12pt;margin-top:2.5mm}
+.bot h4{font-size:7pt;font-weight:700;letter-spacing:.04em;color:var(--ink-m);margin-bottom:2pt}
+.bot p{line-height:1.8;white-space:pre-wrap;font-size:8pt}
+.tot-tbl{width:100%;font-size:8.5pt}
+.tot-tbl td{padding:2pt 5pt;border-bottom:.5pt solid #e0dbd3}
+.tot-tbl td:first-child{color:var(--ink-s);text-align:right;padding-right:6pt}
+.tot-tbl td:last-child{text-align:right;font-weight:600}
+.tot-tbl .tr-tot td{font-size:11pt;font-weight:700;border-top:1.5pt solid var(--ink);border-bottom:none}
+.sig-row{display:flex;align-items:flex-end;justify-content:space-between;margin-top:6mm}
+.sig-box{border-top:.6pt solid #b4b0a8;padding:3pt 0 22pt;font-size:7pt;color:var(--ink-m);min-width:140pt}
+.stamp-area{display:flex;align-items:center;gap:12pt}
+.stamp-slot{width:54pt;height:54pt;display:flex;align-items:center;justify-content:center}
+.stamp-slot img{max-width:52pt;max-height:52pt;object-fit:contain}
+/* page number */
+.pgn{position:absolute;bottom:6mm;right:13mm;font-size:7pt;color:var(--ink-m)}
+
+/* ===== CONTRACT PAGE ===== */
+.cp-content{font-family:'Noto Serif TC',serif;font-size:8.5pt;line-height:1.9;flex:1;margin-top:3mm}
+.cp-content h2{font-size:12pt;text-align:center;margin-bottom:10pt;letter-spacing:.08em}
+.cp-content h3{font-size:9.5pt;font-weight:700;margin:9pt 0 3pt}
+.cp-content p{margin-bottom:5pt}
+.cp-bot{margin-top:auto;padding-top:5mm}
+.cp-sig-grid{display:grid;grid-template-columns:1fr 1fr;gap:20pt;margin-top:4mm}
+.cp-sig-box{border-top:.6pt solid #b4b0a8;padding:3pt 0 28pt;font-size:7pt;color:var(--ink-m);text-align:left}
+.cp-sig-img-wrap{height:24pt;display:flex;align-items:flex-end;padding-top:3pt}
+.cp-sig-img{max-height:22pt;max-width:120pt;object-fit:contain}
+.cp-stamp-row{display:flex;align-items:flex-end;gap:16pt;margin-top:6mm}
+.cp-co-name{font-size:8.5pt;font-weight:700;margin-bottom:4pt}
+.cp-stamp-slots{display:flex;gap:10pt}
+.cp-stamp-slot{display:flex;flex-direction:column;align-items:center;gap:3pt}
+.cp-stamp-slot img{max-width:50pt;max-height:50pt;object-fit:contain}
+.cp-stamp-label{font-size:7pt;color:var(--ink-m)}
+.cp-stamp-placeholder{width:50pt;height:50pt;border:.6pt dashed #bbb;border-radius:2pt;display:flex;align-items:center;justify-content:center;font-size:6.5pt;color:#ccc}
+
+/* ===== PRINT ===== */
+@media print{
+  html,body{background:none}
+  .app{display:block}
+  aside,.toolbar,.info-bar{display:none!important}
+  #pages{padding:0;gap:0}
+  .page{width:210mm;height:297mm;min-height:unset;padding:12mm 13mm 13mm;box-shadow:none;overflow:hidden}
+  @page{size:A4 portrait;margin:0}
+}
+@media(max-width:960px){.app{grid-template-columns:340px 1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ============ ASIDE ============ -->
+<aside>
+  <div class="tab-bar">
+    <button class="tb on"  data-tab="edit">基本資料</button>
+    <button class="tb"     data-tab="items">報價項目</button>
+    <button class="tb"     data-tab="mdb">項目資料庫</button>
+    <button class="tb"     data-tab="brand">品牌素材</button>
+    <button class="tb"     data-tab="saved">已儲存</button>
+    <button class="tb"     data-tab="settings">設定</button>
+  </div>
+  <div class="sum-bar">
+    <span id="sbSecs"></span>
+    <span class="stot" id="sbTot">含稅 $0</span>
+  </div>
+  <div class="panel-body">
+
+    <!-- ===== 基本資料 ===== -->
+    <div id="pane-edit" class="pane on">
+      <div class="fs">
+        <div class="st">公司資訊</div>
+        <div class="fr"><label>公司名稱</label><input type="text" class="fi" id="companyName" value="紅磚影像製作有限公司"></div>
+        <div class="fr"><label>地址 / 電話 / Email（多行）</label><textarea class="fi" id="companyInfo" rows="3">新北市新店區北新路一段271巷47號1樓
++886 963-632-962　　93711363
+service@bricksproduction.com</textarea></div>
+      </div>
+      <div class="fs">
+        <div class="st">報價單資訊</div>
+        <div class="r2">
+          <div class="fr"><label>報價單號</label><input type="text" class="fi" id="quoteNo"></div>
+          <div class="fr"><label>版本</label><input type="text" class="fi" id="versionTag" value="v1"></div>
+        </div>
+        <div class="r2">
+          <div class="fr"><label>報價日期</label><input type="date" class="fi" id="quoteDate"></div>
+          <div class="fr"><label>有效日期（自動 +14 天）</label><input type="date" class="fi" id="validUntil"></div>
+        </div>
+      </div>
+      <div class="fs">
+        <div class="st">客戶 / 專案</div>
+        <div class="fr"><label>從清單選擇客戶</label><select class="fi" id="customerSelect"><option value="">— 選擇客戶 —</option></select></div>
+        <div class="fr"><label>客戶名稱</label><input type="text" class="fi" id="customerName"></div>
+        <div class="r2">
+          <div class="fr"><label>客戶簡稱（檔名用）</label><input type="text" class="fi" id="customerShort"></div>
+          <div class="fr"><label>統一編號</label><input type="text" class="fi" id="customerVat" maxlength="8"></div>
+        </div>
+        <div class="r2">
+          <div class="fr"><label>聯絡人</label><input type="text" class="fi" id="customerContact"></div>
+          <div class="fr"><label>聯絡電話</label><input type="text" class="fi" id="customerPhone"></div>
+        </div>
+        <div class="fr"><label>聯絡地址</label><input type="text" class="fi" id="customerAddress"></div>
+        <div class="fr"><label>專案名稱</label><input type="text" class="fi" id="projectName"></div>
+        <div class="fr"><label>片名 / 案名</label><input type="text" class="fi" id="filmName"></div>
+        <div class="fr"><label>片長規格</label><input type="text" class="fi" id="filmLength" placeholder="企業總部90秒*1支 / 工廠製造90秒*1支"></div>
+        <div class="fr">
+          <label>我方經辦人</label>
+          <select class="fi" id="ownContact"><option value="">— 選擇經辦人 —</option></select>
+        </div>
+      </div>
+      <div class="fs">
+        <div class="st">金額設定</div>
+        <div class="r3">
+          <div class="fr"><label>幣別符號</label><input type="text" class="fi" id="currency" value="$" maxlength="3"></div>
+          <div class="fr"><label>稅率（%）</label><input type="number" class="fi" id="taxRate" value="5" min="0" max="100"></div>
+          <div class="fr"><label>折扣金額</label><input type="number" class="fi" id="discount" value="0" min="0"></div>
+        </div>
+      </div>
+      <div class="fs">
+        <div class="st">付款資訊</div>
+        <div class="fr"><label>付款方式快選</label>
+          <select class="fi" id="payPreset">
+            <option value="half">訂金50% / 尾款50%（預設）</option>
+            <option value="full">全款後啟動</option>
+            <option value="month">驗收後一個月內</option>
+            <option value="custom">自訂</option>
+          </select>
+        </div>
+        <div class="fr"><label>付款條件說明</label><textarea class="fi" id="paymentTerms" rows="3">訂金50%於確認製作後收取(以保留製作檔期)
+尾款50%於交付完整影片後30天內收取</textarea></div>
+        <div class="fr"><label>匯款帳號</label><textarea class="fi" id="bankInfo" rows="2">土地銀行 005 永和分行 帳號：049001161805
+戶名：紅磚影像製作有限公司</textarea></div>
+      </div>
+      <div class="fs">
+        <div class="st">PDF 輸出控制</div>
+        <div class="pdf-ctrl-grid">
+          <label class="pdf-chk"><input type="checkbox" id="pc-desc" checked>顯示說明欄</label>
+          <label class="pdf-chk"><input type="checkbox" id="pc-qty" checked>顯示數量欄</label>
+          <label class="pdf-chk"><input type="checkbox" id="pc-unit" checked>顯示單位欄</label>
+          <label class="pdf-chk"><input type="checkbox" id="pc-secamt" checked>顯示統包金額</label>
+          <label class="pdf-chk"><input type="checkbox" id="pc-filmrow" checked>顯示片名/片長列</label>
+          <label class="pdf-chk"><input type="checkbox" id="pc-contract" checked>附加合約頁</label>
+          <label class="pdf-chk"><input type="checkbox" id="pc-payment" checked>顯示付款資訊</label>
+          <label class="pdf-chk"><input type="checkbox" id="pc-sig" checked>顯示簽名欄</label>
+          <label class="pdf-chk"><input type="checkbox" id="pc-stamp1">顯示公司大章</label>
+          <label class="pdf-chk"><input type="checkbox" id="pc-stamp2">顯示負責人章</label>
+        </div>
+      </div>
+      <div class="fs">
+        <button class="btn ba blk" id="saveBtn">💾 儲存報價單</button>
+        <button class="btn bg blk" id="dupBtn">複製此份為新報價</button>
+        <button class="btn bg blk" id="newVerBtn">↻ 建立新版本</button>
+      </div>
+    </div>
+
+    <!-- ===== 報價項目 ===== -->
+    <div id="pane-items" class="pane">
+      <!-- Preset quick-start -->
+      <div class="preset-bar">
+        <div class="preset-bar-title">⚡ 快速套用預設組合</div>
+        <div id="presetChips"></div>
+        <button class="btn bg sm" id="managePresetsBtn" style="margin-top:6px;width:100%">⚙️ 管理預設組合</button>
+      </div>
+      <div style="background:#fffbf0;border:1px solid #f0e0a0;border-radius:4px;padding:7px;margin-bottom:10px;font-size:11px;color:var(--ink-m)">
+        ⚠️ <strong>內部估算</strong>：成本只有你看得到，客戶 PDF 只顯示各大類統包金額。<br>
+        每個大類的「統包報價」欄位就是給客戶看的金額。
+      </div>
+      <button class="btn ba blk" id="pickFromDbBtn" style="padding:12px;font-size:14px;margin-bottom:4px">📚 從項目資料庫選取（建議的主要方式）</button>
+      <p class="tip" style="margin-bottom:10px">細項請優先從資料庫挑選，確保價格與描述一致。每個大類下方也保留「手動新增一次性項目」供特殊狀況使用。</p>
+      <div id="sectionsEditor"></div>
+      <button class="btn bg" id="addSecBtn" style="width:100%;margin-top:4px">＋ 新增大類（A / B / C…）</button>
+    </div>
+
+    <!-- ===== 項目資料庫 ===== -->
+    <div id="pane-mdb" class="pane">
+      <div style="background:#fffbf0;border:1px solid #f0e0a0;border-radius:4px;padding:7px;margin-bottom:10px;font-size:11px;color:var(--ink-m)">
+        📚 這裡是<strong>主資料庫</strong>，管理所有可重複使用的報價項目（名稱／規格／說明／單位／建議售價）。<br>
+        修改這裡<strong>不會</strong>影響已經帶入報價單的項目；報價單裡的是「複製品」。
+      </div>
+      <div class="mdb-toolbar">
+        <input type="search" id="mdbSearch" class="fi" placeholder="搜尋項目名稱、說明、ID…">
+        <select id="mdbCatFilter" class="fi">
+          <option value="">全部分類</option>
+          <option value="前期製作">A 前期製作</option>
+          <option value="拍攝製作">B 拍攝製作</option>
+          <option value="後期製作">C 後期製作</option>
+          <option value="額外費用">D 額外費用</option>
+        </select>
+        <label class="pdf-chk" style="white-space:nowrap"><input type="checkbox" id="mdbFavOnly">只看收藏</label>
+      </div>
+      <div class="bgrp" style="margin:8px 0">
+        <button class="btn bp sm" id="mdbAddBtn">＋ 新增項目</button>
+        <button class="btn bg sm" id="mdbAddCatBtn">＋ 新增分類</button>
+        <span class="tip" id="mdbCount" style="margin-left:auto;align-self:center"></span>
+      </div>
+      <div id="mdbList"></div>
+    </div>
+    <div id="pane-brand" class="pane">
+      <div class="fs">
+        <div class="st">品牌素材管理（Brand Assets）</div>
+        <p class="tip" style="margin-bottom:10px">在此上傳所有品牌圖片，更換後所有 PDF 自動套用。支援 PNG、SVG，建議使用透明背景。</p>
+        <div class="ba-grid">
+          <div class="ba-card">
+            <h4>🏢 公司 Logo</h4>
+            <div class="ba-preview" id="prev-logo"><span class="ba-placeholder">未上傳</span></div>
+            <input type="file" id="up-logo" accept="image/png,image/svg+xml,image/jpeg">
+            <button class="btn bd sm" style="margin-top:5px;width:100%" onclick="clearAsset('logo')">移除</button>
+          </div>
+          <div class="ba-card">
+            <h4>🔴 公司大章</h4>
+            <div class="ba-preview" id="prev-stamp1"><span class="ba-placeholder">未上傳</span></div>
+            <input type="file" id="up-stamp1" accept="image/png,image/svg+xml">
+            <button class="btn bd sm" style="margin-top:5px;width:100%" onclick="clearAsset('stamp1')">移除</button>
+          </div>
+          <div class="ba-card">
+            <h4>🟠 負責人章（小章）</h4>
+            <div class="ba-preview" id="prev-stamp2"><span class="ba-placeholder">未上傳</span></div>
+            <input type="file" id="up-stamp2" accept="image/png,image/svg+xml">
+            <button class="btn bd sm" style="margin-top:5px;width:100%" onclick="clearAsset('stamp2')">移除</button>
+          </div>
+          <div class="ba-card">
+            <h4>🟡 發票章</h4>
+            <div class="ba-preview" id="prev-invoice"><span class="ba-placeholder">未上傳</span></div>
+            <input type="file" id="up-invoice" accept="image/png,image/svg+xml">
+            <button class="btn bd sm" style="margin-top:5px;width:100%" onclick="clearAsset('invoice')">移除</button>
+          </div>
+          <div class="ba-card">
+            <h4>✍️ 負責人簽名</h4>
+            <div class="ba-preview" id="prev-signature"><span class="ba-placeholder">未上傳</span></div>
+            <input type="file" id="up-signature" accept="image/png,image/svg+xml">
+            <button class="btn bd sm" style="margin-top:5px;width:100%" onclick="clearAsset('signature')">移除</button>
+          </div>
+        </div>
+        <p class="tip">注意：品牌素材儲存在此瀏覽器，清除瀏覽器資料會遺失，建議定期用「設定」頁籤備份資料。</p>
+      </div>
+    </div>
+
+    <!-- ===== 已儲存 ===== -->
+    <div id="pane-saved" class="pane">
+      <div class="ss-wrap"><input type="search" id="savedSearch" placeholder="搜尋報價單…"></div>
+      <div id="savedList"></div>
+    </div>
+
+    <!-- ===== 設定 ===== -->
+    <div id="pane-settings" class="pane">
+      <div class="ssec">
+        <div class="st">客戶管理</div>
+        <div class="fr"><label>匯入客戶 CSV（名稱,簡稱,統編,聯絡人,電話,地址）</label><input type="file" class="fi" id="custCsv" accept=".csv"></div>
+        <button class="btn bd sm" id="clearCustBtn">清除全部客戶</button>
+      </div>
+      <div class="ssec">
+        <div class="st">經辦人管理</div>
+        <p class="tip" style="margin-bottom:7px">新增公司內部經辦人，之後在「基本資料」可直接從選單挑選。</p>
+        <div class="r2">
+          <div class="fr"><label>經辦人姓名</label><input type="text" class="fi" id="staffName" placeholder="例：HONG"></div>
+          <div class="fr"><label>職稱（可留空）</label><input type="text" class="fi" id="staffTitle" placeholder="例：專案製片"></div>
+        </div>
+        <button class="btn bp sm" id="addStaffBtn">＋ 新增經辦人</button>
+        <div id="staffList" style="margin-top:8px"></div>
+      </div>
+      <div class="ssec">
+        <div class="st">合約範本</div>
+        <div class="fr"><label>合約名稱</label><input type="text" class="fi" id="contractName" value="標準合約"></div>
+        <div class="fr"><label>合約內容（支援 {{變數}} 替換）</label><div id="contractEd" class="ced" contenteditable="true"></div></div>
+        <div class="vcs">
+          <span class="vc" onclick="insertVar('{{公司名稱}}')">{{公司名稱}}</span>
+          <span class="vc" onclick="insertVar('{{客戶名稱}}')">{{客戶名稱}}</span>
+          <span class="vc" onclick="insertVar('{{專案名稱}}')">{{專案名稱}}</span>
+          <span class="vc" onclick="insertVar('{{報價單號}}')">{{報價單號}}</span>
+          <span class="vc" onclick="insertVar('{{報價日期}}')">{{報價日期}}</span>
+          <span class="vc" onclick="insertVar('{{有效日期}}')">{{有效日期}}</span>
+        </div>
+        <div class="bgrp" style="margin-top:8px">
+          <button class="btn bp sm" id="saveContractBtn">儲存合約</button>
+          <button class="btn bg sm" id="newContractBtn">新合約</button>
+          <button class="btn bd sm" id="delContractBtn">刪除</button>
+        </div>
+        <div class="fr" style="margin-top:8px"><label>現有合約</label><select class="fi" id="contractList"></select></div>
+        <button class="btn bg sm" id="loadContractBtn">載入編輯</button>
+      </div>
+      <div class="ssec">
+        <div class="st">資料備份</div>
+        <button class="btn bg blk" id="exportAllBtn">📤 匯出全部資料（JSON）</button>
+        <div class="fr" style="margin-top:7px"><label>匯入備份</label><input type="file" class="fi" id="importFile" accept=".json"></div>
+        <p class="tip">匯入將覆蓋全部現有資料，請先備份。</p>
+      </div>
+    </div>
+
+  </div>
+</aside>
+
+<!-- ============ MAIN ============ -->
+<div class="main">
+  <div class="info-bar">
+    <span class="ib-n" id="ibNo">—</span>
+    <span id="ibCust" style="color:#aaa;font-size:11px">—</span>
+    <span class="ib-t" id="ibTot">$0</span>
+  </div>
+  <div class="toolbar">
+    <span class="tlbl">PDF 檔名</span>
+    <input type="text" id="exportFn" placeholder="BRICKS_報價單">
+    <div class="tsp"></div>
+    <button class="tn" id="newQuoteBtn">＋ 新報價</button>
+    <button class="tp" id="printBtn">🖨 輸出 PDF</button>
+    <span id="flashMsg" class="tf"></span>
+  </div>
+  <div id="pages"><div class="eh">填寫左側資料，右側即時預覽報價單 A4 版面</div></div>
+</div>
+</div>
+
+<script>
+'use strict';
+
+/* ========== DEFAULT CONTRACT ========== */
+const DC=`<h2>影像製作服務合作條款</h2>
+<p>委託方（甲方）：<strong>{{客戶名稱}}</strong><br>承接方（乙方）：<strong>{{公司名稱}}</strong><br>報價單號：{{報價單號}}　　報價日期：{{報價日期}}</p>
+<h3>一、專案範疇</h3><p>甲方委託乙方執行「{{專案名稱}}」影像製作專案，乙方依本報價單所列服務項目提供製作服務。如需增加或調整製作範疇，須另以書面確認，並另行議定費用。</p>
+<h3>二、創意開發</h3><p>創意開發時程約需一週至一個月，包含廣告理念討論、製作主題規劃、腳本文字提案、腳本分鏡參考。如有特殊需求，則費用另計。創意腳本開發提供格式：文字腳本一份、逐格參考畫面腳本一份。</p>
+<h3>三、拍攝製作</h3><p>拍攝製作於客戶腳本確認後始進行相關製作規劃。拍攝日期與內容於客戶確認後始進行拍攝，以最終「製作會議 PPM（Pre-Production Meeting）」資料為準。拍攝完成後無法調整畫面內容，如非不可抗力因素需補拍、加拍等延長製作天數之項目，將另行報價。</p>
+<h3>四、後期製作</h3><p>後期製作整體流程約需14個工作天，包含進檔、檔案確認、剪接確認、調光調色、混音錄音、出檔。第一版檔案於拍攝完成後兩週內提供。第一版本檔案提供後，交付日期內不限次數修改。後期製作出檔規格：Rec.709 規格 Prores422HQ/mov。</p>
+<h3>五、付款方式</h3><p>甲方依報價單所列金額及付款方式支付費用。首次配合之客戶，所有款項付清後，始提供最終完成檔案。製作中產生之相關製作檔案，將保存以驗收完成日算起後60天，不提供製作原始檔（含剪接檔案、數據及相關內容）。</p>
+<h3>六、著作財產權</h3><p>客戶於付清所有價款後，著作財產權歸甲方所有。乙方則有完成專案之公開展示權及複製權，可於必要時以案例方式呈現於各平台，但不另作他用。</p>
+<h3>七、保密義務</h3><p>雙方對本合約內容及專案相關資訊負有保密義務，未經對方書面同意，不得對外披露。</p>
+<h3>八、不可抗力</h3><p>因天災、疫情、政府命令或其他不可抗力因素導致履行困難，雙方不負違約責任，並協商調整製作時程。</p>
+<h3>九、爭議解決</h3><p>本合約以中華民國法律為準據法。如有爭議，雙方同意以台灣台北地方法院為第一審管轄法院。</p>`;
+
+// ============================================================
+// MASTER ITEM DATABASE — 紅磚影像製作 報價項目資料庫
+// Taiwan market-rate reference pricing (NTD), editable afterward
+// ============================================================
+const MASTER_ITEMS = [
+  // ===== A 前期製作 (Pre-production) =====
+  {id:'A1',cat:'前期製作',sub:'人員',name:'專案導演',spec:'一名',desc:'專案導演聘用，負責創意統籌與現場執行指導。',unit:'位',price:20000,cost:0,fav:false,active:true,order:1},
+  {id:'A2',cat:'前期製作',sub:'人員',name:'專案製片',spec:'一名',desc:'專案製片人員，負責製作協調與資源調度。',unit:'位',price:15000,cost:0,fav:false,active:true,order:2},
+  {id:'A3',cat:'前期製作',sub:'人員',name:'執行製片',spec:'一名',desc:'執行製片，協助現場製作執行與行政庶務。',unit:'位',price:8000,cost:0,fav:false,active:true,order:3},
+  {id:'A4',cat:'前期製作',sub:'人員',name:'攝影指導',spec:'一名',desc:'專案攝影指導，負責畫面風格與運鏡規劃。',unit:'位',price:15000,cost:0,fav:false,active:true,order:4},
+  {id:'A5',cat:'前期製作',sub:'人員',name:'美術指導',spec:'一名',desc:'美術指導，負責場景與視覺風格規劃。',unit:'位',price:12000,cost:0,fav:false,active:true,order:5},
+  {id:'A6',cat:'前期製作',sub:'企劃',name:'創意企劃',spec:'一案',desc:'廣告理念發想、製作主題規劃。',unit:'案',price:15000,cost:0,fav:false,active:true,order:6},
+  {id:'A7',cat:'前期製作',sub:'企劃',name:'腳本開發',spec:'一案',desc:'提供文字腳本，含1次修改。',unit:'案',price:18000,cost:0,fav:false,active:true,order:7},
+  {id:'A8',cat:'前期製作',sub:'企劃',name:'分鏡腳本',spec:'一案',desc:'逐格參考畫面分鏡腳本製作。',unit:'案',price:10000,cost:0,fav:false,active:true,order:8},
+  {id:'A9',cat:'前期製作',sub:'企劃',name:'AI分鏡製作',spec:'一案',desc:'採用 AI 影像生成技術製作分鏡參考預覽。',unit:'案',price:8000,cost:0,fav:false,active:true,order:9},
+  {id:'A10',cat:'前期製作',sub:'會議',name:'PPM會議',spec:'一場',desc:'Pre-Production Meeting，拍攝前製作會議。',unit:'場',price:5000,cost:0,fav:false,active:true,order:10},
+  {id:'A11',cat:'前期製作',sub:'會議',name:'Tech Meeting',spec:'一場',desc:'技術會議，確認器材與技術規格需求。',unit:'場',price:3000,cost:0,fav:false,active:true,order:11},
+  {id:'A12',cat:'前期製作',sub:'行政',name:'勘景',spec:'一日',desc:'場地勘查，含場景報告與選址建議。',unit:'日',price:6000,cost:0,fav:false,active:true,order:12},
+  {id:'A13',cat:'前期製作',sub:'行政',name:'Casting',spec:'一案',desc:'演員甄選與試鏡安排。',unit:'案',price:10000,cost:0,fav:false,active:true,order:13},
+  {id:'A14',cat:'前期製作',sub:'行政',name:'場地洽談',spec:'一案',desc:'拍攝場地接洽、租借協調。',unit:'案',price:5000,cost:0,fav:false,active:true,order:14},
+  {id:'A15',cat:'前期製作',sub:'文件',name:'拍攝企劃書',spec:'一份',desc:'完整拍攝企劃文件製作。',unit:'份',price:8000,cost:0,fav:false,active:true,order:15},
+  {id:'A16',cat:'前期製作',sub:'文件',name:'Call Sheet',spec:'一份',desc:'拍攝通告單製作與發送。',unit:'份',price:2000,cost:0,fav:false,active:true,order:16},
+  {id:'A17',cat:'前期製作',sub:'行政',name:'保險行政',spec:'一案',desc:'拍攝保險投保與行政作業。',unit:'案',price:3000,cost:0,fav:false,active:true,order:17},
+  {id:'A18',cat:'前期製作',sub:'行政',name:'專案統籌',spec:'一案',desc:'製作規劃、行政庶務及製作會議安排，含拍攝通告及各式文件資料製作。',unit:'案',price:12000,cost:0,fav:false,active:true,order:18},
+
+  // ===== B 拍攝製作 (Production) — 人員 =====
+  {id:'B1',cat:'拍攝製作',sub:'人員',name:'導演',spec:'一名/日',desc:'現場執行導演。',unit:'日',price:15000,cost:0,fav:false,active:true,order:1},
+  {id:'B2',cat:'拍攝製作',sub:'人員',name:'製片',spec:'一名/日',desc:'現場製片，負責進度與資源協調，一天以8小時為限。',unit:'日',price:8000,cost:0,fav:false,active:true,order:2},
+  {id:'B3',cat:'拍攝製作',sub:'人員',name:'執行製片',spec:'一名/日',desc:'現場執行製片，協助製片日常事務。',unit:'日',price:5000,cost:0,fav:false,active:true,order:3},
+  {id:'B4',cat:'拍攝製作',sub:'人員',name:'攝影師',spec:'一名/日',desc:'主攝影師，一天拍攝以8小時為限。',unit:'日',price:12000,cost:0,fav:false,active:true,order:4},
+  {id:'B5',cat:'拍攝製作',sub:'人員',name:'第二攝影',spec:'一名/日',desc:'第二機攝影師。',unit:'日',price:8000,cost:0,fav:false,active:true,order:5},
+  {id:'B6',cat:'拍攝製作',sub:'人員',name:'攝影助理',spec:'一名/日',desc:'攝影助理，協助器材與現場操作。',unit:'日',price:4000,cost:0,fav:false,active:true,order:6},
+  {id:'B7',cat:'拍攝製作',sub:'人員',name:'燈光師',spec:'一名/日',desc:'燈光師，負責現場燈光配置。',unit:'日',price:8000,cost:0,fav:false,active:true,order:7},
+  {id:'B8',cat:'拍攝製作',sub:'人員',name:'燈光助理',spec:'一名/日',desc:'燈光助理，協助燈光器材架設。',unit:'日',price:4000,cost:0,fav:false,active:true,order:8},
+  {id:'B9',cat:'拍攝製作',sub:'人員',name:'收音師',spec:'一名/日',desc:'現場收音師，含收音設備操作。',unit:'日',price:6000,cost:0,fav:false,active:true,order:9},
+  {id:'B10',cat:'拍攝製作',sub:'人員',name:'空拍操作員',spec:'一名/日',desc:'現場航空拍攝操作人員，需具備合格證照。',unit:'日',price:8000,cost:0,fav:false,active:true,order:10},
+  {id:'B11',cat:'拍攝製作',sub:'人員',name:'DIT',spec:'一名/日',desc:'Digital Imaging Technician，現場數位影像管理。',unit:'日',price:6000,cost:0,fav:false,active:true,order:11},
+  {id:'B12',cat:'拍攝製作',sub:'人員',name:'場務',spec:'一名/日',desc:'現場場務人員，協助場地與器材管理。',unit:'日',price:4000,cost:0,fav:false,active:true,order:12},
+  {id:'B13',cat:'拍攝製作',sub:'人員',name:'妝髮',spec:'一名/日',desc:'妝髮造型師。',unit:'日',price:8000,cost:0,fav:false,active:true,order:13},
+  {id:'B14',cat:'拍攝製作',sub:'人員',name:'造型師',spec:'一名/日',desc:'服裝造型規劃與現場執行。',unit:'日',price:8000,cost:0,fav:false,active:true,order:14},
+  {id:'B15',cat:'拍攝製作',sub:'人員',name:'美術',spec:'一名/日',desc:'現場美術陳設執行。',unit:'日',price:6000,cost:0,fav:false,active:true,order:15},
+  {id:'B16',cat:'拍攝製作',sub:'人員',name:'道具',spec:'一名/日',desc:'道具準備與現場管理。',unit:'日',price:4000,cost:0,fav:false,active:true,order:16},
+  {id:'B17',cat:'拍攝製作',sub:'人員',name:'劇照',spec:'一名/日',desc:'現場劇照攝影師。',unit:'日',price:5000,cost:0,fav:false,active:true,order:17},
+  {id:'B18',cat:'拍攝製作',sub:'人員',name:'側拍',spec:'一名/日',desc:'幕後花絮側拍人員。',unit:'日',price:4000,cost:0,fav:false,active:true,order:18},
+
+  // ===== B 拍攝製作 — 器材 =====
+  {id:'B19',cat:'拍攝製作',sub:'器材',name:'Sony FX3',spec:'一組/日',desc:'Sony FX3 專業錄影機租賃，含基本配件。',unit:'日',price:3000,cost:0,fav:false,active:true,order:19},
+  {id:'B20',cat:'拍攝製作',sub:'器材',name:'Sony FX6',spec:'一組/日',desc:'Sony FX6 專業錄影機租賃，含基本配件。',unit:'日',price:5000,cost:0,fav:false,active:true,order:20},
+  {id:'B21',cat:'拍攝製作',sub:'器材',name:'Sony FX9',spec:'一組/日',desc:'Sony FX9 旗艦級錄影機租賃，含基本配件。',unit:'日',price:8000,cost:0,fav:false,active:true,order:21},
+  {id:'B22',cat:'拍攝製作',sub:'器材',name:'RED',spec:'一組/日',desc:'RED 電影機租賃，含基本配件。',unit:'日',price:15000,cost:0,fav:false,active:true,order:22},
+  {id:'B23',cat:'拍攝製作',sub:'器材',name:'ARRI',spec:'一組/日',desc:'ARRI 電影機租賃，含基本配件。',unit:'日',price:20000,cost:0,fav:false,active:true,order:23},
+  {id:'B24',cat:'拍攝製作',sub:'器材',name:'Cinema Lens',spec:'一組/日',desc:'電影鏡頭組租賃。',unit:'日',price:5000,cost:0,fav:false,active:true,order:24},
+  {id:'B25',cat:'拍攝製作',sub:'器材',name:'GM鏡頭組',spec:'一組/日',desc:'Sony GM 系列鏡頭組租賃。',unit:'日',price:3000,cost:0,fav:false,active:true,order:25},
+  {id:'B26',cat:'拍攝製作',sub:'器材',name:'LED燈光',spec:'一組/日',desc:'LED 持續燈光設備組。',unit:'日',price:3000,cost:0,fav:false,active:true,order:26},
+  {id:'B27',cat:'拍攝製作',sub:'器材',name:'Aputure',spec:'一組/日',desc:'Aputure 燈光設備租賃。',unit:'日',price:2500,cost:0,fav:false,active:true,order:27},
+  {id:'B28',cat:'拍攝製作',sub:'器材',name:'Nanlite',spec:'一組/日',desc:'Nanlite 燈光設備租賃。',unit:'日',price:2000,cost:0,fav:false,active:true,order:28},
+  {id:'B29',cat:'拍攝製作',sub:'器材',name:'C Stand',spec:'一組/日',desc:'C 型燈架組。',unit:'日',price:500,cost:0,fav:false,active:true,order:29},
+  {id:'B30',cat:'拍攝製作',sub:'器材',name:'燈腳',spec:'一組/日',desc:'燈光腳架組。',unit:'日',price:500,cost:0,fav:false,active:true,order:30},
+  {id:'B31',cat:'拍攝製作',sub:'器材',name:'柔光布',spec:'一組/日',desc:'柔光布及輔助器材。',unit:'日',price:800,cost:0,fav:false,active:true,order:31},
+  {id:'B32',cat:'拍攝製作',sub:'器材',name:'沙包',spec:'一組/日',desc:'燈光輔助沙包組。',unit:'日',price:500,cost:0,fav:false,active:true,order:32},
+  {id:'B33',cat:'拍攝製作',sub:'器材',name:'Slider',spec:'一組/日',desc:'滑軌設備租賃。',unit:'日',price:1500,cost:0,fav:false,active:true,order:33},
+  {id:'B34',cat:'拍攝製作',sub:'器材',name:'DJI RS',spec:'一組/日',desc:'DJI RS 系列穩定器租賃。',unit:'日',price:2000,cost:0,fav:false,active:true,order:34},
+  {id:'B35',cat:'拍攝製作',sub:'器材',name:'Monitor',spec:'一組/日',desc:'現場監視器租賃。',unit:'日',price:1500,cost:0,fav:false,active:true,order:35},
+  {id:'B36',cat:'拍攝製作',sub:'器材',name:'Teleprompter',spec:'一組/日',desc:'讀稿機租賃。',unit:'日',price:2500,cost:0,fav:false,active:true,order:36},
+  {id:'B37',cat:'拍攝製作',sub:'器材',name:'無線圖傳',spec:'一組/日',desc:'無線影像傳輸設備。',unit:'日',price:2000,cost:0,fav:false,active:true,order:37},
+  {id:'B38',cat:'拍攝製作',sub:'器材',name:'收音設備',spec:'一組/日',desc:'專業收音設備組，含麥克風與錄音器材。',unit:'日',price:3000,cost:0,fav:false,active:true,order:38},
+  {id:'B39',cat:'拍攝製作',sub:'器材',name:'空拍設備',spec:'一組/日',desc:'空拍設備組（通用）。',unit:'日',price:5000,cost:0,fav:false,active:true,order:39},
+  {id:'B40',cat:'拍攝製作',sub:'器材',name:'DJI Air',spec:'一組/日',desc:'DJI Air 系列航拍設備。',unit:'日',price:3000,cost:0,fav:false,active:true,order:40},
+  {id:'B41',cat:'拍攝製作',sub:'器材',name:'DJI Mavic',spec:'一組/日',desc:'DJI Mavic 系列航拍設備。',unit:'日',price:3500,cost:0,fav:false,active:true,order:41},
+  {id:'B42',cat:'拍攝製作',sub:'器材',name:'DJI Inspire',spec:'一組/日',desc:'DJI Inspire 系列專業航拍設備。',unit:'日',price:8000,cost:0,fav:false,active:true,order:42},
+
+  // ===== B 拍攝製作 — 場地行政 =====
+  {id:'B43',cat:'拍攝製作',sub:'場地行政',name:'場地租借',spec:'一日',desc:'拍攝場地租借費用（依場地類型浮動）。',unit:'日',price:10000,cost:0,fav:false,active:true,order:43},
+  {id:'B44',cat:'拍攝製作',sub:'場地行政',name:'道具採購',spec:'一案',desc:'拍攝所需道具採購費用。',unit:'案',price:5000,cost:0,fav:false,active:true,order:44},
+  {id:'B45',cat:'拍攝製作',sub:'場地行政',name:'車馬費',spec:'一日',desc:'拍攝當日各組人員車輛交通費用。',unit:'日',price:3000,cost:0,fav:false,active:true,order:45},
+  {id:'B46',cat:'拍攝製作',sub:'場地行政',name:'餐費',spec:'一日',desc:'拍攝當日工作人員餐食費用。',unit:'日',price:3000,cost:0,fav:false,active:true,order:46},
+  {id:'B47',cat:'拍攝製作',sub:'場地行政',name:'保險',spec:'一案',desc:'拍攝期間人員與器材保險。',unit:'案',price:2000,cost:0,fav:false,active:true,order:47},
+  {id:'B48',cat:'拍攝製作',sub:'場地行政',name:'停車',spec:'一日',desc:'拍攝當日停車費用。',unit:'日',price:500,cost:0,fav:false,active:true,order:48},
+  {id:'B49',cat:'拍攝製作',sub:'場地行政',name:'高速公路',spec:'一日',desc:'拍攝當日高速公路通行費用。',unit:'日',price:500,cost:0,fav:false,active:true,order:49},
+  {id:'B50',cat:'拍攝製作',sub:'場地行政',name:'運費',spec:'一案',desc:'器材與道具運輸費用。',unit:'案',price:2000,cost:0,fav:false,active:true,order:50},
+
+  // ===== C 後期製作 (Post-production) — 剪輯 =====
+  {id:'C1',cat:'後期製作',sub:'剪輯',name:'初剪',spec:'一案',desc:'全片初步剪輯，提供初剪版本供確認。',unit:'案',price:15000,cost:0,fav:false,active:true,order:1},
+  {id:'C2',cat:'後期製作',sub:'剪輯',name:'精剪',spec:'一案',desc:'含全片專案剪輯及中文字幕、基礎文字設計、畫面調色、輸出。',unit:'案',price:25000,cost:0,fav:false,active:true,order:2},
+  {id:'C3',cat:'後期製作',sub:'剪輯',name:'社群短影音',spec:'一支',desc:'社群平台短影音剪輯版本。',unit:'支',price:8000,cost:0,fav:false,active:true,order:3},
+  {id:'C4',cat:'後期製作',sub:'剪輯',name:'Reels',spec:'一支',desc:'Instagram Reels 版本剪輯。',unit:'支',price:6000,cost:0,fav:false,active:true,order:4},
+  {id:'C5',cat:'後期製作',sub:'剪輯',name:'TikTok版本',spec:'一支',desc:'TikTok 平台版本剪輯。',unit:'支',price:6000,cost:0,fav:false,active:true,order:5},
+  {id:'C6',cat:'後期製作',sub:'剪輯',name:'橫式版本',spec:'一支',desc:'16:9 橫式版本輸出。',unit:'支',price:5000,cost:0,fav:false,active:true,order:6},
+  {id:'C7',cat:'後期製作',sub:'剪輯',name:'直式版本',spec:'一支',desc:'9:16 直式版本輸出。',unit:'支',price:5000,cost:0,fav:false,active:true,order:7},
+
+  // ===== C 後期製作 — 調色 =====
+  {id:'C8',cat:'後期製作',sub:'調色',name:'Color Correction',spec:'一案',desc:'基礎校色，畫面色彩平衡調整。',unit:'案',price:8000,cost:0,fav:false,active:true,order:8},
+  {id:'C9',cat:'後期製作',sub:'調色',name:'Color Grading',spec:'一案',desc:'電影級 Rec.709 調光調色，建立風格化色調。',unit:'案',price:15000,cost:0,fav:false,active:true,order:9},
+
+  // ===== C 後期製作 — Motion =====
+  {id:'C10',cat:'後期製作',sub:'Motion',name:'Motion Graphics',spec:'一案',desc:'動態圖文設計製作。',unit:'案',price:12000,cost:0,fav:false,active:true,order:10},
+  {id:'C11',cat:'後期製作',sub:'Motion',name:'2D Animation',spec:'一案',desc:'2D 動畫設計與製作。',unit:'案',price:20000,cost:0,fav:false,active:true,order:11},
+  {id:'C12',cat:'後期製作',sub:'Motion',name:'3D Animation',spec:'一案',desc:'3D 動畫設計與製作。',unit:'案',price:35000,cost:0,fav:false,active:true,order:12},
+  {id:'C13',cat:'後期製作',sub:'Motion',name:'Logo Animation',spec:'一案',desc:'品牌 Logo 動態化製作。',unit:'案',price:8000,cost:0,fav:false,active:true,order:13},
+
+  // ===== C 後期製作 — AI =====
+  {id:'C14',cat:'後期製作',sub:'AI',name:'AI影像生成',spec:'一案',desc:'採用 AI 影像生成技術進行局部畫面製作與整合。',unit:'案',price:10000,cost:0,fav:false,active:true,order:14},
+  {id:'C15',cat:'後期製作',sub:'AI',name:'AI去背',spec:'一案',desc:'AI 自動去背處理。',unit:'案',price:3000,cost:0,fav:false,active:true,order:15},
+  {id:'C16',cat:'後期製作',sub:'AI',name:'AI修圖',spec:'一案',desc:'AI 輔助修圖與影像優化。',unit:'案',price:5000,cost:0,fav:false,active:true,order:16},
+
+  // ===== C 後期製作 — 音訊 =====
+  {id:'C17',cat:'後期製作',sub:'音訊',name:'配音',spec:'一案',desc:'專業配音員錄製旁白或對白。',unit:'案',price:8000,cost:0,fav:false,active:true,order:17},
+  {id:'C18',cat:'後期製作',sub:'音訊',name:'錄音室',spec:'一日',desc:'專業錄音室租用。',unit:'日',price:6000,cost:0,fav:false,active:true,order:18},
+  {id:'C19',cat:'後期製作',sub:'音訊',name:'音效設計',spec:'一案',desc:'專案音效設計與製作。',unit:'案',price:8000,cost:0,fav:false,active:true,order:19},
+  {id:'C20',cat:'後期製作',sub:'音訊',name:'混音',spec:'一案',desc:'專案音效製作與整合混音。',unit:'案',price:6000,cost:0,fav:false,active:true,order:20},
+  {id:'C21',cat:'後期製作',sub:'音訊',name:'音樂授權',spec:'一首',desc:'專案版權配樂授權費用。',unit:'首',price:5000,cost:0,fav:false,active:true,order:21},
+
+  // ===== C 後期製作 — 其他 =====
+  {id:'C22',cat:'後期製作',sub:'其他',name:'字幕',spec:'一案',desc:'中文字幕製作與校對。',unit:'案',price:3000,cost:0,fav:false,active:true,order:22},
+  {id:'C23',cat:'後期製作',sub:'其他',name:'英文字幕',spec:'一案',desc:'英文字幕翻譯與製作。',unit:'案',price:6000,cost:0,fav:false,active:true,order:23},
+  {id:'C24',cat:'後期製作',sub:'其他',name:'4K輸出',spec:'一案',desc:'4K 解析度成片輸出。',unit:'案',price:3000,cost:0,fav:false,active:true,order:24},
+  {id:'C25',cat:'後期製作',sub:'其他',name:'Master輸出',spec:'一案',desc:'母帶級規格成片輸出，Rec.709 ProRes422HQ。',unit:'案',price:2000,cost:0,fav:false,active:true,order:25},
+  {id:'C26',cat:'後期製作',sub:'其他',name:'專案備份',spec:'一案',desc:'專案檔案完整備份保存。',unit:'案',price:2000,cost:0,fav:false,active:true,order:26},
+  {id:'C27',cat:'後期製作',sub:'其他',name:'客戶修改',spec:'一次',desc:'超出合約修改次數之額外修改費用。',unit:'次',price:3000,cost:0,fav:false,active:true,order:27},
+
+  // ===== D 額外費用 (Additional) =====
+  {id:'D1',cat:'額外費用',sub:'加急',name:'急件費(+30%)',spec:'整案',desc:'急件加價，依專案總價加收30%。',unit:'式',price:0,cost:0,fav:false,active:true,order:1},
+  {id:'D2',cat:'額外費用',sub:'拍攝',name:'夜間拍攝',spec:'一日',desc:'夜間（22:00後）拍攝加價。',unit:'日',price:8000,cost:0,fav:false,active:true,order:2},
+  {id:'D3',cat:'額外費用',sub:'拍攝',name:'超時費',spec:'一小時',desc:'超過8小時拍攝之超時加價。',unit:'小時',price:2000,cost:0,fav:false,active:true,order:3},
+  {id:'D4',cat:'額外費用',sub:'交通',name:'外縣市拍攝',spec:'一日',desc:'新竹以南或外縣市拍攝交通與住宿加價。',unit:'日',price:10000,cost:0,fav:false,active:true,order:4},
+  {id:'D5',cat:'額外費用',sub:'交通',name:'海外拍攝',spec:'一日',desc:'海外拍攝機票、簽證、當地交通住宿費用。',unit:'日',price:30000,cost:0,fav:false,active:true,order:5},
+  {id:'D6',cat:'額外費用',sub:'交通',name:'車馬住宿',spec:'一日',desc:'外地拍攝車馬與住宿費用。',unit:'日',price:5000,cost:0,fav:false,active:true,order:6},
+  {id:'D7',cat:'額外費用',sub:'器材',name:'器材運輸',spec:'一案',desc:'大型器材運送費用。',unit:'案',price:3000,cost:0,fav:false,active:true,order:7},
+  {id:'D8',cat:'額外費用',sub:'交付',name:'雲端備份',spec:'一年',desc:'專案雲端備份服務，一年期。',unit:'年',price:3000,cost:0,fav:false,active:true,order:8},
+  {id:'D9',cat:'額外費用',sub:'交付',name:'硬碟交付',spec:'一顆',desc:'隨身硬碟拷貝交付成片檔案。',unit:'顆',price:2000,cost:0,fav:false,active:true,order:9},
+  {id:'D10',cat:'額外費用',sub:'交付',name:'專案保存一年',spec:'一年',desc:'製作檔案延長保存一年（標準保存期為驗收後60天）。',unit:'年',price:5000,cost:0,fav:false,active:true,order:10},
+];
+
+// Default top-level categories. id is used as the canonical category key
+// (matches MASTER_ITEMS[].cat). Users can add more via "新增分類".
+const MASTER_CATS = [
+  {id:'前期製作',label:'前期製作',order:1},
+  {id:'拍攝製作',label:'拍攝製作',order:2},
+  {id:'後期製作',label:'後期製作',order:3},
+  {id:'額外費用',label:'額外費用',order:4},
+];
+
+/* ========== DEFAULT PRESETS ========== */
+// Each preset defines a set of sections, each section references master item IDs.
+// On first run these are seeded into IndexedDB (store: 'presets').
+// The user can edit/add/delete presets freely after that.
+const DEFAULT_PRESETS = [
+  {
+    id:'preset_interview_basic',
+    name:'訪談基本組',
+    desc:'單人或雙人訪談拍攝，一天拍攝，含基礎剪輯',
+    icon:'🎙️',
+    sections:[
+      {name:'前期製作', itemIds:['A1','A3','A18']},
+      {name:'拍攝製作', itemIds:['B1','B2','B4','B5','B7','B9','B26','B35','B38']},
+      {name:'後期製作', itemIds:['C2','C8','C9','C20','C21']},
+    ]
+  },
+  {
+    id:'preset_ad_advanced',
+    name:'廣告進階組',
+    desc:'品牌廣告影片，3天拍攝，含全套後期製作',
+    icon:'📺',
+    sections:[
+      {name:'前期製作', itemIds:['A1','A2','A4','A6','A7','A8','A10','A12','A15','A16','A18']},
+      {name:'拍攝製作', itemIds:['B1','B2','B3','B4','B5','B6','B7','B8','B9','B10','B20','B24','B26','B33','B34','B35','B38','B39','B45','B46','B47']},
+      {name:'後期製作', itemIds:['C1','C2','C6','C7','C9','C10','C11','C17','C19','C20','C21','C22']},
+      {name:'額外費用',  itemIds:[]},
+    ]
+  },
+  {
+    id:'preset_brand_image',
+    name:'品牌形象影片',
+    desc:'企業形象影片，2天拍攝，強調視覺與音效',
+    icon:'🏢',
+    sections:[
+      {name:'前期製作', itemIds:['A1','A2','A4','A6','A7','A10','A12','A18']},
+      {name:'拍攝製作', itemIds:['B1','B2','B4','B5','B6','B7','B8','B9','B20','B24','B26','B33','B35','B38','B45','B46','B47']},
+      {name:'後期製作', itemIds:['C2','C6','C7','C9','C10','C19','C20','C21','C22','C24']},
+    ]
+  },
+  {
+    id:'preset_social_content',
+    name:'社群短影音組',
+    desc:'社群短片，一天拍攝，以Reels/TikTok為主',
+    icon:'📱',
+    sections:[
+      {name:'前期製作', itemIds:['A1','A7','A18']},
+      {name:'拍攝製作', itemIds:['B1','B2','B4','B5','B7','B9','B26','B38','B45','B46']},
+      {name:'後期製作', itemIds:['C3','C4','C5','C8','C19','C20','C21']},
+    ]
+  },
+  {
+    id:'preset_documentary',
+    name:'紀錄片組',
+    desc:'紀錄片拍攝，多天拍攝，含訪談與現場紀實',
+    icon:'🎬',
+    sections:[
+      {name:'前期製作', itemIds:['A1','A2','A3','A6','A10','A12','A18']},
+      {name:'拍攝製作', itemIds:['B1','B2','B4','B5','B6','B7','B8','B9','B11','B20','B26','B33','B35','B38','B45','B46','B47']},
+      {name:'後期製作', itemIds:['C1','C2','C8','C9','C19','C20','C21','C22','C23','C25']},
+    ]
+  },
+];
+
+/* ========== DEFAULT SECTIONS ========== */
+// New quotes start with the three standard category shells (前期/拍攝/後期)
+// but NO hardcoded sample items inside them — the master item database is
+// the intended source of truth. Items only get added when the user either
+// picks from the database (preferred) or explicitly adds a one-off manual
+// item (still supported, but a secondary action).
+const DS=[
+  {name:'前期製作',pkg:0,items:[],footnote:''},
+  {name:'拍攝製作',pkg:0,items:[],footnote:''},
+  {name:'後期製作',pkg:0,items:[],footnote:''},
+  {name:'額外費用',pkg:0,items:[],footnote:''},
+];
+
+/* ========== STATE ========== */
+const A={logo:null,stamp1:null,stamp2:null,invoice:null,signature:null}; // brand assets
+const S={secs:[],qid:null,cid:null};
+
+/* ========== DB — localStorage-based (Safari file:// compatible) ========== */
+// All data is stored in localStorage as JSON.
+// Keys: "bricks::{store}::all" for collections, "bricks::{store}::{id}" not used
+// (we store each store as one big JSON array for simplicity and speed).
+
+const LS_PREFIX = 'bricks5::';
+
+function _lsRead(store){
+  try {
+    const raw = localStorage.getItem(LS_PREFIX + store);
+    return raw ? JSON.parse(raw) : [];
+  } catch(e) { return []; }
+}
+function _lsWrite(store, arr){
+  try { localStorage.setItem(LS_PREFIX + store, JSON.stringify(arr)); } catch(e) {}
+}
+
+// Mimic the async IDB API so all calling code stays unchanged
+async function openDB(){ return true; } // no-op, localStorage is always ready
+
+function dbA(store){ return Promise.resolve(_lsRead(store)); }
+
+function dbG(store, id){
+  const keyField = (store==='meta'||store==='assets') ? 'key' : 'id';
+  const all = _lsRead(store);
+  return Promise.resolve(all.find(r=>r[keyField]===id) || null);
+}
+
+function dbP(store, val){
+  const keyField = (store==='meta'||store==='assets') ? 'key' : 'id';
+  const all = _lsRead(store);
+  const idx = all.findIndex(r=>r[keyField]===val[keyField]);
+  if(idx>=0) all[idx]=val; else all.push(val);
+  _lsWrite(store, all);
+  return Promise.resolve();
+}
+
+function dbD(store, id){
+  const keyField = (store==='meta'||store==='assets') ? 'key' : 'id';
+  const all = _lsRead(store).filter(r=>r[keyField]!==id);
+  _lsWrite(store, all);
+  return Promise.resolve();
+}
+
+function dbC(store){
+  _lsWrite(store, []);
+  return Promise.resolve();
+}
+
+// Seed the master item/category database on first run only. Uses a meta flag
+// so subsequent app updates never silently overwrite the user's edits/deletions.
+async function seedMasterDbIfNeeded(){
+  // Check each store independently — never rely solely on a global flag,
+  // because the flag may already be set from a previous DB version even when
+  // a newly-added store (master_items / presets) is still empty.
+  const [existingItems, existingCats, existingPresets] = await Promise.all([
+    dbA('master_items'), dbA('master_cats'), dbA('presets')
+  ]);
+
+  if(existingItems.length===0){
+    for(const it of MASTER_ITEMS) await dbP('master_items',{...it});
+  }
+  if(existingCats.length===0){
+    for(const c of MASTER_CATS) await dbP('master_cats',{...c});
+  }
+  if(existingPresets.length===0){
+    for(const p of DEFAULT_PRESETS) await dbP('presets',{...p});
+  }
+}
+
+// Force reseed — clears and rewrites master_items, master_cats, presets
+/* ========== UTILS ========== */
+const $=id=>document.getElementById(id);
+const fmt=n=>Math.round(n||0).toLocaleString('en-US');
+const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const tod=(d=0)=>{const t=new Date();t.setDate(t.getDate()+d);return t.toISOString().slice(0,10)};
+const fd=s=>s?s.replace(/-/g,'/'):'';
+const cur=()=>$('currency')?.value||'$';
+const LTRS='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const pc=id=>$('pc-'+id)?.checked!==false;
+
+let _ft;
+function flash(msg){const f=$('flashMsg');if(!f)return;f.textContent=msg;clearTimeout(_ft);_ft=setTimeout(()=>{f.textContent=''},3000)}
+
+async function nextNo(){
+  let m=await dbG('meta','ctr');const n=m?m.val+1:1;
+  await dbP('meta',{key:'ctr',val:n});
+  const d=new Date(),yy=String(d.getFullYear()).slice(2),mm=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
+  return`RB${yy}${mm}${dd}${String(n).padStart(2,'0')}`;
+}
+
+/* ========== ASSET MANAGEMENT ========== */
+const toURL=f=>new Promise(r=>{const rd=new FileReader();rd.onload=e=>r(e.target.result);rd.readAsDataURL(f)});
+
+async function saveAsset(key,url){
+  A[key]=url;
+  await dbP('assets',{key,url});
+  updateAssetPreview(key);
+  sR();
+}
+async function clearAsset(key){
+  A[key]=null;
+  await dbD('assets',key);
+  updateAssetPreview(key);
+  sR();
+}
+function updateAssetPreview(key){
+  const p=$(`prev-${key}`);if(!p)return;
+  p.innerHTML=A[key]?`<img src="${A[key]}" alt="">`:`<span class="ba-placeholder">未上傳</span>`;
+}
+async function loadAllAssets(){
+  for(const key of['logo','stamp1','stamp2','invoice','signature']){
+    const r=await dbG('assets',key);
+    A[key]=r?.url||null;
+    updateAssetPreview(key);
+  }
+}
+
+/* ========== COMPUTE ========== */
+function secCostTotal(sec){
+  return sec.items.reduce((s,it)=>{
+    const q=parseFloat(String(it.qty||'1').replace(/[^0-9.]/g,''))||1;
+    return s+(Number(it.cost)||0)*q;
+  },0);
+}
+// pkg = manually entered package price; fallback to cost total if 0
+function secAmt(sec){return Number(sec.pkg)||0}
+
+function compTot(){
+  const sub=S.secs.reduce((s,sec)=>s+secAmt(sec),0);
+  const disc=Number($('discount')?.value)||0;
+  const taxR=Number($('taxRate')?.value)||0;
+  const tax=Math.round((sub-disc)*taxR/100);
+  return{sub,disc,taxR,tax,total:sub-disc+tax};
+}
+
+/* ========== RENDER EDITOR ========== */
+function pkgProfitHtml(cost,amt,c){
+  if(amt<=0)return'';
+  if(cost<=0)return`<span class="pp-cost">成本未填</span>`;
+  const profit=amt-cost;
+  const rate=Math.round(profit/amt*100);
+  const cls=profit>=0?'pp-pos':'pp-neg';
+  return`<span class="pp-cost">成本 ${c}${fmt(cost)}</span><span class="${cls}">獲利率 ${rate}%</span>`;
+}
+function rEditor(){
+  const w=$('sectionsEditor');if(!w)return;
+  const c=cur();
+  w.innerHTML=S.secs.map((sec,si)=>{
+    const L=LTRS[si]||String(si+1);
+    const cost=secCostTotal(sec);
+    const amt=secAmt(sec);
+    const itemsHtml=sec.items.map((it,ii)=>`
+      <div class="item-row">
+        <div class="item-tr">
+          <span class="item-seq">${L}${ii+1}</span>
+          <input class="item-nm" type="text" placeholder="項目名稱" value="${esc(it.name)}" data-si="${si}" data-ii="${ii}" data-f="name">
+          <div class="item-btns">
+            <button onclick="mvItem(${si},${ii},-1)">↑</button>
+            <button onclick="mvItem(${si},${ii},1)">↓</button>
+            <button class="dl" onclick="rmItem(${si},${ii})">✕</button>
+          </div>
+        </div>
+        <textarea class="item-desc" placeholder="說明（顯示在 PDF）" data-si="${si}" data-ii="${ii}" data-f="desc" rows="2">${esc(it.desc||'')}</textarea>
+        <div class="item-nr">
+          <div></div>
+          <div><label>數量</label><input type="text" value="${esc(it.qty||'1')}" data-si="${si}" data-ii="${ii}" data-f="qty"></div>
+          <div><label>單位</label><input type="text" value="${esc(it.unit||'')}" data-si="${si}" data-ii="${ii}" data-f="unit" placeholder="日"></div>
+          <div><label>內部成本 ▲</label><input type="number" value="${it.cost||0}" data-si="${si}" data-ii="${ii}" data-f="cost"></div>
+          <div class="item-cost-disp">${it.cost>0?c+' '+fmt((Number(it.cost)||0)*(parseFloat(String(it.qty||'1').replace(/[^0-9.]/g,''))||1)):''}</div>
+        </div>
+      </div>`).join('');
+    const emptyHint=sec.items.length===0?`<div class="sec-empty-hint">尚無項目 — 請點下方「📚 從資料庫加入」開始挑選</div>`:'';
+    return`<div class="sec-blk">
+      <div class="sec-hd">
+        <div class="sec-ltr">${L}</div>
+        <input class="sec-nm-inp" type="text" value="${esc(sec.name)}" data-si="${si}" data-f="name">
+        <div class="sec-pkg">
+          <label>統包報價 ${c}</label>
+          <input type="text" inputmode="numeric" value="${sec.pkg||''}" data-si="${si}" data-f="pkg" placeholder="0">
+          <div class="sec-pkg-profit" id="pkgProfit${si}">${pkgProfitHtml(cost,amt,c)}</div>
+        </div>
+        <div class="sec-hd-btn">
+          <button onclick="mvSec(${si},-1)">↑</button>
+          <button onclick="mvSec(${si},1)">↓</button>
+          <button class="dl" onclick="rmSec(${si})">✕</button>
+        </div>
+      </div>
+      <div>${itemsHtml}${emptyHint}</div>
+      <div class="add-item-row2">
+        <button class="add-item-db" onclick="openPicker(${si})">📚 從資料庫加入 ${L} 類項目</button>
+        <button class="add-item-manual" onclick="addItem(${si})">✎ 手動新增一次性項目</button>
+      </div>
+      <div class="fn-wrap">
+        <label>頁尾備註（可留空，顯示於此類下方）</label>
+        <input type="text" placeholder="＊備註說明…" value="${esc(sec.footnote||'')}" data-si="${si}" data-f="footnote">
+      </div>
+    </div>`;
+  }).join('');
+
+  // Attach events
+  w.querySelectorAll('[data-si][data-ii][data-f]').forEach(el=>el.addEventListener('input',e=>{
+    const si=+e.target.dataset.si,ii=+e.target.dataset.ii,f=e.target.dataset.f;
+    S.secs[si].items[ii][f]=f==='cost'?Number(e.target.value):e.target.value;
+    if(f==='cost'||f==='qty'){
+      // live-update profit readout under pkg input without re-rendering whole editor
+      const sec=S.secs[si],cost=secCostTotal(sec),amt=secAmt(sec);
+      const ppEl=document.getElementById('pkgProfit'+si);
+      if(ppEl)ppEl.innerHTML=pkgProfitHtml(cost,amt,cur());
+      // also update item subtotal display next to this row, without full re-render
+      const row=el.closest('.item-row');
+      const disp=row?.querySelector('.item-cost-disp');
+      if(disp){
+        const q=parseFloat(String(S.secs[si].items[ii].qty||'1').replace(/[^0-9.]/g,''))||1;
+        const sub=(Number(S.secs[si].items[ii].cost)||0)*q;
+        disp.textContent=sub>0?cur()+' '+fmt(sub):'';
+      }
+    }
+    sRLite();
+  }));
+  w.querySelectorAll('[data-si][data-ii][data-f]').forEach(el=>el.addEventListener('blur',()=>{rEditor();sR()}));
+
+  w.querySelectorAll('[data-si][data-f]:not([data-ii])').forEach(el=>el.addEventListener('input',e=>{
+    const si=+e.target.dataset.si,f=e.target.dataset.f;
+    if(f==='pkg'){
+      const raw=e.target.value.replace(/[^0-9]/g,'');
+      S.secs[si][f]=raw===''?0:Number(raw);
+      // live-update profit readout right under the input, no full re-render
+      const sec=S.secs[si],cost=secCostTotal(sec),amt=secAmt(sec);
+      const ppEl=document.getElementById('pkgProfit'+si);
+      if(ppEl)ppEl.innerHTML=pkgProfitHtml(cost,amt,cur());
+    } else {
+      S.secs[si][f]=e.target.value;
+    }
+    sRLite();
+  }));
+  w.querySelectorAll('[data-si][data-f]:not([data-ii])').forEach(el=>el.addEventListener('blur',()=>{rEditor();sR()}));
+}
+function addItem(si){S.secs[si].items.push({name:'',desc:'',qty:'1',unit:'日',cost:0});rEditor();sR()}
+function rmItem(si,ii){S.secs[si].items.splice(ii,1);rEditor();sR()}
+function mvItem(si,ii,d){const t=ii+d,a=S.secs[si].items;if(t<0||t>=a.length)return;[a[ii],a[t]]=[a[t],a[ii]];rEditor();sR()}
+function addSec(){S.secs.push({name:'新大類',pkg:0,items:[],footnote:''});rEditor();sR()}
+function rmSec(si){if(!confirm('確定刪除這個大類？'))return;S.secs.splice(si,1);rEditor();sR()}
+function mvSec(si,d){const t=si+d;if(t<0||t>=S.secs.length)return;[S.secs[si],S.secs[t]]=[S.secs[t],S.secs[si]];rEditor();sR()}
+
+/* ========== SUMMARY BAR ========== */
+function rSumBar(){
+  const t=compTot(),c=cur();
+  $('sbSecs').innerHTML=S.secs.map((sec,si)=>{
+    const L=LTRS[si]||String(si+1),amt=secAmt(sec);
+    return`<span class="si"><span class="sl">${L}${esc(sec.name)}</span><span class="sv">${amt>0?c+' '+fmt(amt):'—'}</span></span>`;
+  }).join('');
+  $('sbTot').textContent=`含稅 ${c} ${fmt(t.total)}`;
+  $('ibNo').textContent=$('quoteNo')?.value||'—';
+  $('ibCust').textContent=$('customerName')?.value||'—';
+  $('ibTot').textContent=`${c} ${fmt(t.total)}`;
+}
+
+/* ========== PDF RENDER ========== */
+let _rt;
+function sR(){clearTimeout(_rt);_rt=setTimeout(rAll,120)}
+function sRLite(){clearTimeout(_rt);_rt=setTimeout(()=>{rSumBar();rFn();rPages()},120)}
+function rAll(){rEditor();rSumBar();rFn();rPages()}
+
+function rFn(){
+  const s=$('customerShort')?.value||'',p=$('projectName')?.value||'',n=$('quoteNo')?.value||'';
+  $('exportFn').value=[s,p,n].filter(Boolean).join('_')||'BRICKS_報價單';
+}
+
+/* ---- Gather all data ---- */
+const FLD=['companyName','companyInfo','quoteNo','versionTag','quoteDate','validUntil',
+  'customerName','customerShort','customerVat','customerContact','customerPhone','customerAddress',
+  'projectName','filmName','filmLength','ownContact','currency','taxRate','discount',
+  'paymentTerms','bankInfo'];
+
+function gather(){
+  const d={};
+  FLD.forEach(f=>{if($(f))d[f]=$(f).value});
+  d.secs=S.secs.map(s=>({...s,items:s.items.map(it=>({...it}))}));
+  d.assets={...A};
+  d.cid=S.cid;
+  // pdf controls
+  d.pc={desc:pc('desc'),qty:pc('qty'),unit:pc('unit'),secamt:pc('secamt'),
+        filmrow:pc('filmrow'),contract:pc('contract'),payment:pc('payment'),sig:pc('sig'),
+        stamp1:$('pc-stamp1')?.checked||false,stamp2:$('pc-stamp2')?.checked||false};
+  return d;
+}
+
+function applyData(d){
+  FLD.forEach(f=>{if($(f)&&d[f]!==undefined&&f!=='ownContact')$(f).value=d[f]});
+  // ownContact is a <select> backed by the staff list; if the saved name isn't
+  // currently in the list (e.g. staff member deleted, or old quote), inject a
+  // temporary option so the value isn't silently lost.
+  if(d.ownContact!==undefined){
+    const sel=$('ownContact');
+    if(sel){
+      const exists=[...sel.options].some(o=>o.value===d.ownContact);
+      if(!exists&&d.ownContact){
+        const opt=document.createElement('option');
+        opt.value=d.ownContact;opt.textContent=d.ownContact+'（未在清單中）';
+        sel.appendChild(opt);
+      }
+      sel.value=d.ownContact||'';
+    }
+  }
+  S.secs=(d.secs||DS).map(s=>({...s,items:(s.items||[]).map(it=>({...it}))}));
+  if(d.assets){Object.assign(A,d.assets);['logo','stamp1','stamp2','invoice','signature'].forEach(k=>updateAssetPreview(k))}
+  S.cid=d.cid||null;
+  if(d.pc){Object.entries(d.pc).forEach(([k,v])=>{const el=$('pc-'+k);if(el)el.checked=v})}
+  rFn();rEditor();sR();
+}
+
+/* ---- Pages ---- */
+function rPages(){
+  const pg=$('pages');if(!pg)return;
+  const d=gather(),t=compTot();
+  if(!d.customerName&&!S.secs.some(s=>s.items.some(it=>it.name))){
+    pg.innerHTML='<div class="eh">填寫左側資料，右側即時預覽報價單 A4 版面</div>';return;
+  }
+  const pages=paginate(d);
+  const showContract=d.pc.contract;
+  const totalPgs=pages.length+(showContract?1:0);
+  pg.innerHTML=pages.map((g,i)=>rQPage(d,t,g,i+1,totalPgs,i===pages.length-1)).join('')
+    +(showContract?rCPage(d,totalPgs,totalPgs):'');
+}
+
+function paginate(d){
+  const FIRST=16,REST=22;
+  const pages=[];let cur=[],cnt=0;
+  S.secs.forEach((sec,si)=>{
+    const rows=1+sec.items.length+(sec.footnote?1:0);
+    const lim=pages.length===0?FIRST:REST;
+    if(cnt+rows>lim&&cur.length>0){pages.push(cur);cur=[];cnt=0}
+    cur.push({sec,si});cnt+=rows;
+  });
+  if(cur.length||pages.length===0)pages.push(cur);
+  return pages;
+}
+
+function brandMark(d){
+  const logo=A.logo?`<img src="${A.logo}" alt="logo">`
+    :`<div class="ph-logo-box"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="1" y="1" width="8" height="8" fill="white" opacity=".9"/><rect x="13" y="1" width="8" height="8" fill="white" opacity=".9"/><rect x="1" y="13" width="8" height="8" fill="white" opacity=".9"/><rect x="13" y="13" width="8" height="8" fill="white" opacity=".9"/></svg></div>`;
+  const coInfo=(d.companyInfo||'').split('\n').map(l=>esc(l.trim())).filter(Boolean).join('<br>');
+  return`<div class="ph">
+    <div class="ph-left">
+      <div class="ph-logo">${logo}</div>
+      <div class="ph-co">
+        <h1>${esc(d.companyName||'紅磚影像製作有限公司')}</h1>
+        <p>${coInfo}</p>
+      </div>
+    </div>
+    <div class="ph-right">
+      <div class="ph-title">報　價　單</div>
+      <div class="ph-meta">
+        日期 ${fd(d.quoteDate)||'—'}<br>
+        ${d.validUntil?`有效日期 ${fd(d.validUntil)}<br>`:''}
+        ${d.ownContact?`經辦人｜${esc(d.ownContact)}<br>`:''}
+        頁碼 __PG__
+      </div>
+    </div>
+  </div>`;
+}
+
+function rQPage(d,t,grps,pn,total,isLast){
+  const c=d.currency||'$';
+  const bm=brandMark(d).replace('__PG__',`${pn} / ${total}`);
+
+  // customer header — only page 1
+  let custHtml='';
+  if(pn===1){
+    custHtml=`<table class="ct">
+      <tr><td class="lbl">客戶名稱｜</td><td class="val" colspan="3">${esc(d.customerName||'')}</td></tr>
+      <tr>
+        <td class="lbl">聯　絡　人｜</td><td class="val">${esc(d.customerContact||'')}</td>
+        <td class="lbl">專案名稱｜</td><td class="val">${esc(d.projectName||'')}</td>
+      </tr>
+      <tr>
+        <td class="lbl">聯絡電話｜</td><td class="val">${esc(d.customerPhone||'')}</td>
+        <td class="lbl">統一編號｜</td><td class="val">${esc(d.customerVat||'')}</td>
+      </tr>
+      <tr>
+        <td class="lbl">聯絡地址｜</td><td class="val" colspan="3">${esc(d.customerAddress||'')}</td>
+      </tr>
+    </table>`;
+    if(d.pc.filmrow&&(d.filmName||d.filmLength)){
+      custHtml+=`<div class="frow">
+        <div class="fc"><span class="fl">片名/案名｜</span><span class="fv">${esc(d.filmName||d.projectName||'')}</span></div>
+        <div class="fc"><span class="fl">片長｜</span><span class="fv">${esc(d.filmLength||'')}</span></div>
+      </div>`;
+    }
+  }
+
+  // build table header — no amount column
+  const thQty=d.pc.qty?`<th class="cqt">數量</th>`:'';
+  const thUnit=d.pc.unit?`<th class="cut">單位</th>`:'';
+  const baseCols=3+(d.pc.desc?1:0)+(d.pc.qty?1:0)+(d.pc.unit?1:0);
+
+  let rows='';
+  grps.forEach(({sec,si})=>{
+    const L=LTRS[si]||String(si+1),amt=secAmt(sec);
+    // Section header — name only
+    rows+=`<tr class="sh"><td colspan="${baseCols}" style="padding:3.5pt 7pt">${L}${esc(sec.name)}</td></tr>`;
+    // Items — no amount column
+    sec.items.forEach((it,ii)=>{
+      const td=(content,cls='')=>`<td${cls?' class="'+cls+'"':''}>${content}</td>`;
+      rows+=`<tr>
+        ${td(`${L}${ii+1}`,'cno')}
+        ${td(esc(it.name),'cnm')}
+        ${d.pc.desc?td(esc(it.desc||'').replace(/\n/g,'<br>'),'cds'):''}
+        ${d.pc.qty?td(esc(it.qty||''),'cqt'):''}
+        ${d.pc.unit?td(esc(it.unit||''),'cut'):''}
+      </tr>`;
+    });
+    // Footnote
+    if(sec.footnote){
+      rows+=`<tr class="fn"><td colspan="${baseCols}">＊${esc(sec.footnote)}</td></tr>`;
+    }
+    // Package amount row at bottom of section
+    if(d.pc.secamt&&amt>0){
+      rows+=`<tr class="pkg-amt-row"><td colspan="${baseCols}">
+        <span class="pkg-amt-label">${L}${esc(sec.name)}　小計</span>
+        <span class="pkg-amt-val">${c}&nbsp;${fmt(amt)}</span>
+      </td></tr>`;
+    }
+  });
+
+  let botHtml='';
+  if(isLast){
+    const disc=t.disc>0?`<tr><td>折　扣｜</td><td>- ${c}&nbsp;${fmt(t.disc)}</td></tr>`:'';
+    const taxR=t.taxR>0?`<tr><td>稅額(${t.taxR}%)｜</td><td>${c}&nbsp;${fmt(t.tax)}</td></tr>`:'';
+    const payHtml=d.pc.payment?`
+      <div><h4>付款方式</h4><p>${esc(d.paymentTerms||'').replace(/\n/g,'<br>')}</p>
+      <h4 style="margin-top:5pt">匯款資訊</h4><p><strong>${esc(d.bankInfo||'').replace(/\n/g,'<br>')}</strong></p></div>`:'<div></div>';
+    const sigHtml=d.pc.sig?`<div class="sig-row">
+      <div class="sig-box">客戶簽章：＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿</div>
+    </div>`:'';
+    botHtml=`<div class="bot">
+      <div class="bot-grid">
+        ${payHtml}
+        <table class="tot-tbl">
+          <tr><td>合　計｜</td><td>${c}&nbsp;${fmt(t.sub)}</td></tr>
+          ${taxR}${disc}
+          <tr class="tr-tot"><td>總　計｜</td><td>${c}&nbsp;${fmt(t.total)}</td></tr>
+        </table>
+      </div>
+      ${sigHtml}
+    </div>`;
+  }
+
+  return`<div class="page">
+    ${bm}
+    ${custHtml}
+    <table class="qt">
+      <thead><tr>
+        <th class="cno">序號</th>
+        <th class="cnm">製作項目/規格</th>
+        ${d.pc.desc?'<th class="cds">說明</th>':''}
+        ${thQty}${thUnit}
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    ${botHtml}
+  </div>`;
+}
+
+function rCPage(d,pn,total){
+  const bm=brandMark(d).replace('__PG__',`${pn} / ${total}`);
+  const body=applyV(DC,d);
+  // stamps — only render a slot if the asset exists AND (it's the invoice stamp, which is always shown,
+  // or its visibility checkbox is on). If unchecked / not uploaded, the slot is skipped entirely.
+  const mkSlot=(url,lbl)=>url
+    ?`<div class="cp-stamp-slot"><img src="${url}" alt="${lbl}"><span class="cp-stamp-label">${lbl}</span></div>`
+    :`<div class="cp-stamp-slot"><div class="cp-stamp-placeholder">${lbl}</div><span class="cp-stamp-label">${lbl}</span></div>`;
+  const stampSlots=[
+    d.pc.stamp1?mkSlot(A.stamp1,'公司大章'):'',
+    d.pc.stamp2?mkSlot(A.stamp2,'負責人章'):'',
+    mkSlot(A.invoice,'發票章'), // invoice stamp always shown
+  ].filter(Boolean).join('');
+  const sigHtml=d.pc.sig?`<div class="cp-sig-grid">
+        <div class="cp-sig-box">甲方（客戶）確認簽章<br><br><br></div>
+        <div class="cp-sig-box">
+          乙方（紅磚）負責人簽章
+          ${A.signature?`<div class="cp-sig-img-wrap"><img src="${A.signature}" alt="負責人簽名" class="cp-sig-img"></div>`:'<br><br><br>'}
+        </div>
+      </div>`:'';
+  return`<div class="page">
+    ${bm}
+    <div class="cp-content">${body}</div>
+    <div class="cp-bot">
+      ${sigHtml}
+      <div class="cp-stamp-row">
+        <div>
+          <div class="cp-co-name">${esc(d.companyName||'紅磚影像製作有限公司')}</div>
+          <div class="cp-stamp-slots">
+            ${stampSlots}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function applyV(html,d){
+  return html
+    .replace(/\{\{公司名稱\}\}/g,esc(d.companyName||''))
+    .replace(/\{\{客戶名稱\}\}/g,esc(d.customerName||''))
+    .replace(/\{\{專案名稱\}\}/g,esc(d.projectName||''))
+    .replace(/\{\{報價單號\}\}/g,esc(d.quoteNo||''))
+    .replace(/\{\{報價日期\}\}/g,fd(d.quoteDate||''))
+    .replace(/\{\{有效日期\}\}/g,fd(d.validUntil||''));
+}
+
+/* ========== SAVE / LOAD ========== */
+async function saveQ(){
+  const d=gather(),t=compTot(),id=S.qid||('q_'+Date.now());
+  S.qid=id;
+  await dbP('quotes',{...d,id,total:t.total,updatedAt:new Date().toISOString()});
+  rSaved($('savedSearch')?.value||'');flash('報價單已儲存 ✓');
+}
+async function loadQ(id){
+  const r=await dbG('quotes',id);if(!r)return;
+  S.qid=id;applyData(r);rSaved();switchTab('edit');flash(`已載入：${r.quoteNo}`);
+}
+async function delQ(id){
+  if(!confirm('確定刪除？'))return;
+  await dbD('quotes',id);if(S.qid===id)S.qid=null;
+  rSaved($('savedSearch')?.value||'');flash('已刪除');
+}
+async function dupQ(id){
+  const r=await dbG('quotes',id);if(!r)return;
+  const nid='q_'+Date.now(),no=await nextNo();
+  await dbP('quotes',{...r,id:nid,quoteNo:no,versionTag:'v1',updatedAt:new Date().toISOString()});
+  S.qid=nid;applyData({...r,quoteNo:no,versionTag:'v1'});rSaved();flash('已複製 ✓');
+}
+async function rSaved(q=''){
+  const w=$('savedList');if(!w)return;
+  let all=await dbA('quotes');all.sort((a,b)=>(b.updatedAt||'').localeCompare(a.updatedAt||''));
+  if(q){const fl=q.toLowerCase();all=all.filter(r=>(r.quoteNo+r.customerName+r.projectName).toLowerCase().includes(fl))}
+  if(!all.length){w.innerHTML='<div class="el">尚無儲存的報價單</div>';return}
+  w.innerHTML=all.map(r=>`<div class="sqi${r.id===S.qid?' cur':''}" onclick="loadQ('${r.id}')">
+    <div class="sq-no">${esc(r.quoteNo||'')} ${esc(r.versionTag||'')}</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div class="sq-nm">${esc(r.customerName||'（未命名）')}</div>
+      <div class="sq-tt">${esc(r.currency||'$')} ${fmt(r.total||0)}</div>
+    </div>
+    <div class="sq-mt">${esc(r.projectName||'')} ｜ ${(r.updatedAt||'').slice(0,10)}</div>
+    <div style="display:flex;gap:5px;margin-top:5px">
+      <button class="btn bg sm" onclick="event.stopPropagation();dupQ('${r.id}')">複製</button>
+      <button class="btn bd sm" onclick="event.stopPropagation();delQ('${r.id}')">刪除</button>
+    </div>
+  </div>`).join('');
+}
+
+/* ========== NEW QUOTE ========== */
+async function newQuote(){
+  if(S.secs.some(s=>s.items.some(it=>it.name))&&!confirm('建立新報價單？未儲存內容將遺失。'))return;
+  S.qid=null;S.cid=null;
+  S.secs=DS.map(s=>({...s,items:s.items.map(it=>({...it}))}));
+  const no=await nextNo(),today=tod(),valid=tod(14);
+  $('quoteDate').value=today;$('validUntil').value=valid;
+  $('quoteNo').value=no;$('versionTag').value='v1';
+  ['customerName','customerShort','customerVat','customerContact','customerPhone','customerAddress','projectName','filmName','filmLength'].forEach(f=>{if($(f))$(f).value=''});
+  $('discount').value='0';
+  rEditor();rFn();sR();flash(`新報價單 ${no}`);
+}
+async function dupQuote(){const no=await nextNo();S.qid=null;$('quoteNo').value=no;$('versionTag').value='v1';sR();flash(`已複製為 ${no}`)}
+async function newVer(){const v=$('versionTag')?.value||'v1',m=v.match(/v(\d+)/),nv='v'+(m?+m[1]+1:2);S.qid=null;$('versionTag').value=nv;sR();flash(`新版本 ${nv}`)}
+
+/* ========== CUSTOMERS ========== */
+async function fillCS(){
+  const sel=$('customerSelect');if(!sel)return;
+  const all=await dbA('customers');
+  sel.innerHTML='<option value="">— 選擇客戶 —</option>'+all.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
+}
+function loadCustCsv(file){
+  const r=new FileReader();r.onload=async e=>{
+    const lines=e.target.result.split('\n').filter(l=>l.trim());
+    const cs=lines.slice(1).map((l,n)=>{const p=l.split(',').map(s=>s.trim().replace(/^"|"$/g,''));
+      return{id:'c_'+Date.now()+'_'+n,name:p[0]||'',short:p[1]||'',vat:p[2]||'',contact:p[3]||'',phone:p[4]||'',address:p[5]||''}
+    }).filter(c=>c.name);
+    for(const c of cs)await dbP('customers',c);fillCS();flash(`匯入 ${cs.length} 筆客戶`);
+  };r.readAsText(file);
+}
+
+/* ========== STAFF (我方經辦人) ========== */
+async function fillOC(keepValue){
+  const sel=$('ownContact');if(!sel)return;
+  const cur=keepValue!==undefined?keepValue:sel.value;
+  const all=await dbA('staff');
+  all.sort((a,b)=>(a.name||'').localeCompare(b.name||'','zh-Hant'));
+  sel.innerHTML='<option value="">— 選擇經辦人 —</option>'+all.map(s=>`<option value="${esc(s.name)}">${esc(s.name)}${s.title?'（'+esc(s.title)+'）':''}</option>`).join('');
+  if(cur)sel.value=cur;
+}
+async function rStaffList(){
+  const w=$('staffList');if(!w)return;
+  const all=await dbA('staff');
+  all.sort((a,b)=>(a.name||'').localeCompare(b.name||'','zh-Hant'));
+  if(!all.length){w.innerHTML='<div class="el" style="padding:10px">尚無經辦人，請於上方新增</div>';return}
+  w.innerHTML=all.map(s=>`<div class="sqi" style="cursor:default">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="sq-nm">${esc(s.name)}${s.title?`<span style="font-weight:400;color:var(--ink-m);font-size:11px"> ｜ ${esc(s.title)}</span>`:''}</div>
+      <button class="btn bd sm" onclick="delStaff('${s.id}')">刪除</button>
+    </div>
+  </div>`).join('');
+}
+async function addStaff(){
+  const name=$('staffName')?.value.trim();
+  if(!name){flash('請輸入經辦人姓名');return}
+  const title=$('staffTitle')?.value.trim()||'';
+  await dbP('staff',{id:'s_'+Date.now(),name,title});
+  $('staffName').value='';$('staffTitle').value='';
+  await rStaffList();await fillOC();
+  flash(`已新增經辦人：${name}`);
+}
+async function delStaff(id){
+  if(!confirm('確定刪除這位經辦人？'))return;
+  await dbD('staff',id);await rStaffList();await fillOC();flash('已刪除');
+}
+
+/* ========== MASTER ITEM DATABASE ========== */
+const MDB={items:[],cats:[],editingId:null};
+
+async function loadMasterDb(){
+  // Strategy: always start from the built-in JS constants (MASTER_ITEMS,
+  // MASTER_CATS) and overlay with whatever the user has stored in IndexedDB.
+  // This means the master DB is ALWAYS populated — even if IndexedDB is
+  // unavailable (Safari private mode, first run, upgrade glitch, etc.).
+  try {
+    const [dbItems, dbCats] = await Promise.all([
+      dbA('master_items'), dbA('master_cats')
+    ]);
+    // If DB has items, use them (user may have edited/added/deleted)
+    MDB.items = dbItems.length > 0 ? dbItems : MASTER_ITEMS.map(i=>({...i}));
+    MDB.cats  = dbCats.length  > 0 ? dbCats  : MASTER_CATS.map(c=>({...c}));
+  } catch(e) {
+    // IndexedDB unavailable (Safari Private, permissions, etc.) — use constants
+    MDB.items = MASTER_ITEMS.map(i=>({...i}));
+    MDB.cats  = MASTER_CATS.map(c=>({...c}));
+  }
+  MDB.cats.sort((a,b)=>(a.order||0)-(b.order||0));
+}
+
+function mdbNextId(catKey){
+  // Find the existing prefix letter used for this category (A/B/C/D/E...),
+  // assigning a new one if this is a brand-new category.
+  const existingForCat=MDB.items.filter(i=>i.cat===catKey);
+  let prefix;
+  if(existingForCat.length){
+    prefix=existingForCat[0].id.match(/^[A-Z]+/)?.[0]||'X';
+  }else{
+    const usedPrefixes=new Set(MDB.items.map(i=>i.id.match(/^[A-Z]+/)?.[0]));
+    prefix=LTRS.split('').find(l=>!usedPrefixes.has(l))||'X';
+  }
+  const nums=existingForCat.map(i=>parseInt(i.id.replace(/^[A-Z]+/,''),10)||0);
+  const next=(nums.length?Math.max(...nums):0)+1;
+  return prefix+next;
+}
+
+async function fillMdbCatFilter(){
+  const sel=$('mdbCatFilter');if(!sel)return;
+  const cur=sel.value;
+  sel.innerHTML='<option value="">全部分類</option>'+MDB.cats.map(c=>`<option value="${esc(c.id)}">${esc(c.label)}</option>`).join('');
+  sel.value=cur||'';
+}
+
+async function rMdbList(){
+  await loadMasterDb();
+  await fillMdbCatFilter();
+  const w=$('mdbList');if(!w)return;
+  const q=($('mdbSearch')?.value||'').trim().toLowerCase();
+  const catFilter=$('mdbCatFilter')?.value||'';
+  const favOnly=$('mdbFavOnly')?.checked||false;
+
+  let items=MDB.items.slice();
+  if(catFilter)items=items.filter(i=>i.cat===catFilter);
+  if(favOnly)items=items.filter(i=>i.fav);
+  if(q)items=items.filter(i=>
+    (i.name||'').toLowerCase().includes(q)||
+    (i.desc||'').toLowerCase().includes(q)||
+    (i.id||'').toLowerCase().includes(q)||
+    (i.sub||'').toLowerCase().includes(q)
+  );
+
+  $('mdbCount').textContent=`共 ${items.length} 項`;
+
+  if(!items.length){w.innerHTML='<div class="el">沒有符合條件的項目</div>';return}
+
+  // group by category, in MDB.cats order; unknown cats go last
+  const catOrder=MDB.cats.map(c=>c.id);
+  const groups={};
+  items.forEach(i=>{(groups[i.cat]=groups[i.cat]||[]).push(i)});
+  const orderedCatKeys=[...catOrder.filter(c=>groups[c]),...Object.keys(groups).filter(c=>!catOrder.includes(c))];
+
+  w.innerHTML=orderedCatKeys.map(catKey=>{
+    const catLabel=MDB.cats.find(c=>c.id===catKey)?.label||catKey;
+    const list=groups[catKey].sort((a,b)=>(a.order||0)-(b.order||0)||a.id.localeCompare(b.id));
+    const rows=list.map(it=>mdbItemRowHtml(it)).join('');
+    return`<div class="mdb-cat-group">
+      <div class="mdb-cat-hd">${esc(catLabel)}<span class="mdb-cat-count">${list.length} 項</span></div>
+      ${rows}
+    </div>`;
+  }).join('');
+
+  // attach events
+  w.querySelectorAll('.mdb-fav-btn').forEach(b=>b.addEventListener('click',e=>{
+    e.stopPropagation();toggleMdbFav(b.dataset.id);
+  }));
+  w.querySelectorAll('.mdb-edit-btn').forEach(b=>b.addEventListener('click',e=>{
+    e.stopPropagation();toggleMdbEdit(b.dataset.id);
+  }));
+  w.querySelectorAll('.mdb-del-btn').forEach(b=>b.addEventListener('click',e=>{
+    e.stopPropagation();delMdbItem(b.dataset.id);
+  }));
+  w.querySelectorAll('.mdb-save-btn').forEach(b=>b.addEventListener('click',e=>{
+    e.stopPropagation();saveMdbItemEdit(b.dataset.id);
+  }));
+}
+
+function mdbItemRowHtml(it){
+  const editing=MDB.editingId===it.id;
+  return`<div class="mdb-item${it.active===false?' inactive':''}" data-id="${esc(it.id)}">
+    <button class="mdb-fav-btn${it.fav?' on':''}" data-id="${esc(it.id)}" title="收藏常用項目">${it.fav?'★':'☆'}</button>
+    <div class="mdb-item-body">
+      <div class="mdb-item-top">
+        <span class="mdb-item-id">${esc(it.id)}</span>
+        <span class="mdb-item-name">${esc(it.name)}</span>
+        ${it.sub?`<span class="mdb-item-sub">${esc(it.sub)}</span>`:''}
+      </div>
+      <div class="mdb-item-desc">${esc(it.desc||'')}</div>
+      <div class="mdb-item-meta">
+        <span>規格：${esc(it.spec||'—')}</span>
+        <span>單位：${esc(it.unit||'—')}</span>
+        <span class="mdb-item-price">建議售價 $${fmt(it.price)}</span>
+      </div>
+    </div>
+    <div class="mdb-item-actions">
+      <button class="btn bg sm mdb-edit-btn" data-id="${esc(it.id)}">${editing?'取消':'編輯'}</button>
+      <button class="btn bd sm mdb-del-btn" data-id="${esc(it.id)}">刪除</button>
+    </div>
+    <div class="mdb-edit-row${editing?' show':''}">
+      ${editing?mdbEditFormHtml(it):''}
+    </div>
+  </div>`;
+}
+
+function mdbEditFormHtml(it){
+  const catOpts=MDB.cats.map(c=>`<option value="${esc(c.id)}"${c.id===it.cat?' selected':''}>${esc(c.label)}</option>`).join('');
+  return`
+    <div class="mdb-edit-grid">
+      <div class="fr"><label>分類</label><select class="fi" id="mdbE_cat_${esc(it.id)}">${catOpts}</select></div>
+      <div class="fr"><label>子分類</label><input type="text" class="fi" id="mdbE_sub_${esc(it.id)}" value="${esc(it.sub||'')}"></div>
+      <div class="fr"><label>項目名稱</label><input type="text" class="fi" id="mdbE_name_${esc(it.id)}" value="${esc(it.name)}"></div>
+      <div class="fr"><label>規格</label><input type="text" class="fi" id="mdbE_spec_${esc(it.id)}" value="${esc(it.spec||'')}"></div>
+      <div class="fr" style="grid-column:1/-1"><label>說明</label><textarea class="fi" id="mdbE_desc_${esc(it.id)}" rows="2">${esc(it.desc||'')}</textarea></div>
+      <div class="fr"><label>單位</label><input type="text" class="fi" id="mdbE_unit_${esc(it.id)}" value="${esc(it.unit||'')}"></div>
+      <div class="fr"><label>建議售價 $</label><input type="number" class="fi" id="mdbE_price_${esc(it.id)}" value="${it.price||0}"></div>
+    </div>
+    <button class="btn ba sm mdb-save-btn" data-id="${esc(it.id)}">💾 儲存修改</button>
+  `;
+}
+
+function toggleMdbEdit(id){
+  MDB.editingId=MDB.editingId===id?null:id;
+  rMdbList();
+}
+
+async function saveMdbItemEdit(id){
+  const it=MDB.items.find(i=>i.id===id);if(!it)return;
+  const g=f=>$(`mdbE_${f}_${id}`)?.value;
+  const updated={...it,
+    cat:g('cat')||it.cat,
+    sub:g('sub')||'',
+    name:g('name')||it.name,
+    spec:g('spec')||'',
+    desc:g('desc')||'',
+    unit:g('unit')||'',
+    price:Number(g('price'))||0,
+  };
+  await dbP('master_items',updated);
+  MDB.editingId=null;
+  await rMdbList();
+  flash(`已更新：${updated.name}`);
+}
+
+async function toggleMdbFav(id){
+  const it=MDB.items.find(i=>i.id===id);if(!it)return;
+  it.fav=!it.fav;
+  await dbP('master_items',it);
+  await rMdbList();
+}
+
+async function delMdbItem(id){
+  const it=MDB.items.find(i=>i.id===id);if(!it)return;
+  if(!confirm(`確定刪除「${it.name}」？此動作無法復原。`))return;
+  await dbD('master_items',id);
+  await rMdbList();
+  flash('已刪除');
+}
+
+async function addMdbItem(){
+  const catKey=$('mdbCatFilter')?.value||MDB.cats[0]?.id||'前期製作';
+  const newId=mdbNextId(catKey);
+  const newItem={id:newId,cat:catKey,sub:'',name:'新項目',spec:'',desc:'',unit:'式',price:0,cost:0,fav:false,active:true,order:999};
+  await dbP('master_items',newItem);
+  MDB.editingId=newId;
+  await rMdbList();
+  flash(`已新增項目 ${newId}，請編輯內容`);
+  // scroll to it
+  setTimeout(()=>{
+    const el=document.querySelector(`.mdb-item[data-id="${newId}"]`);
+    if(el&&typeof el.scrollIntoView==='function'){
+      el.scrollIntoView({behavior:'smooth',block:'center'});
+    }
+  },100);
+}
+
+async function addMdbCat(){
+  const label=prompt('請輸入新分類名稱（例：演員資料、場地資料）：');
+  if(!label||!label.trim())return;
+  const id=label.trim();
+  if(MDB.cats.some(c=>c.id===id)){flash('此分類已存在');return}
+  const order=(Math.max(0,...MDB.cats.map(c=>c.order||0)))+1;
+  await dbP('master_cats',{id,label:id,order});
+  await rMdbList();
+  flash(`已新增分類：${id}`);
+}
+
+/* ========== PRESETS ========== */
+async function loadPresets(){
+  try {
+    const dbPresets = await dbA('presets');
+    const list = dbPresets.length > 0 ? dbPresets : DEFAULT_PRESETS.map(p=>({...p}));
+    return list.sort((a,b)=>(a.name||'').localeCompare(b.name||'','zh-Hant'));
+  } catch(e) {
+    return DEFAULT_PRESETS.map(p=>({...p})).sort((a,b)=>(a.name||'').localeCompare(b.name||'','zh-Hant'));
+  }
+}
+
+async function rPresetChips(){
+  const w=$('presetChips');if(!w)return;
+  const presets=await loadPresets();
+  if(!presets.length){w.innerHTML='<span style="font-size:11px;color:#666">尚無預設組合，點下方「管理」新增</span>';return}
+  w.innerHTML=presets.map(p=>`
+    <button class="preset-chip" onclick="applyPreset('${esc(p.id)}')" title="${esc(p.desc||'')}">
+      <span class="pc-icon">${p.icon||'📋'}</span>
+      <span>${esc(p.name)}</span>
+    </button>`).join('');
+}
+
+async function applyPreset(id){
+  // Load presets and master items
+  const presets=await loadPresets();
+  const preset=presets.find(p=>p.id===id);
+  if(!preset)return;
+  await loadMasterDb();
+
+  // Confirm if quote already has items
+  const hasItems=S.secs.some(s=>s.items.length>0);
+  if(hasItems){
+    if(!confirm(`套用「${preset.name}」將取代目前所有報價項目，確定嗎？`))return;
+  }
+
+  // Build sections from preset definition
+  const newSecs=preset.sections.map(secDef=>{
+    const items=secDef.itemIds
+      .map(id=>MDB.items.find(i=>i.id===id))
+      .filter(Boolean)
+      .map(it=>({
+        name:it.name,
+        desc:it.desc||'',
+        qty:'1',
+        unit:it.unit||'',
+        cost:Number(it.cost)||0,
+        _srcId:it.id,
+      }));
+    return{name:secDef.name,pkg:0,items,footnote:''};
+  });
+
+  // Merge: keep existing sections not in preset, append preset sections
+  // Strategy: replace matching section names, keep extras
+  S.secs=newSecs;
+
+  rEditor();sR();
+  switchTab('items');
+  flash(`已套用：${preset.icon||''}${preset.name}（${newSecs.reduce((n,s)=>n+s.items.length,0)} 個項目）`);
+}
+
+function openPresetManager(){
+  // Reuse the modal framework
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay';
+  overlay.id='presetMgrOverlay';
+  overlay.innerHTML=`
+    <div class="modal-box">
+      <div class="modal-hd">
+        <h3>⚡ 管理預設組合</h3>
+        <button class="modal-close" id="pmCloseBtn">✕</button>
+      </div>
+      <div class="modal-body" id="pmBody"></div>
+      <div class="modal-ft" style="gap:8px">
+        <button class="btn ba sm" id="pmNewBtn">＋ 新增預設組合</button>
+        <button class="btn bg sm" id="pmCloseBtn2">關閉</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  rPresetMgrList();
+  $('pmCloseBtn').addEventListener('click',closePresetMgr);
+  $('pmCloseBtn2').addEventListener('click',closePresetMgr);
+  $('pmNewBtn').addEventListener('click',newPreset);
+  overlay.addEventListener('click',e=>{if(e.target===overlay)closePresetMgr()});
+}
+
+function closePresetMgr(){document.getElementById('presetMgrOverlay')?.remove()}
+
+async function rPresetMgrList(){
+  const w=$('pmBody');if(!w)return;
+  const presets=await loadPresets();
+  if(!presets.length){w.innerHTML='<div class="el">尚無預設組合</div>';return}
+  w.innerHTML=presets.map(p=>{
+    const secSummary=p.sections?.map(s=>`${s.name}（${s.itemIds?.length||0}項）`).join('、')||'—';
+    return`<div class="pm-item">
+      <div class="pm-icon">${p.icon||'📋'}</div>
+      <div class="pm-body">
+        <div class="pm-name">${esc(p.name)}</div>
+        <div class="pm-desc">${esc(p.desc||'')}</div>
+        <div class="pm-secs">${esc(secSummary)}</div>
+      </div>
+      <div class="pm-actions">
+        <button class="pm-apply-btn" onclick="applyPresetFromMgr('${esc(p.id)}')">套用</button>
+        <button class="btn bg sm" onclick="editPreset('${esc(p.id)}')">編輯</button>
+        <button class="btn bd sm" onclick="delPreset('${esc(p.id)}')">刪除</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function applyPresetFromMgr(id){
+  closePresetMgr();
+  await applyPreset(id);
+}
+
+async function delPreset(id){
+  if(!confirm('確定刪除此預設組合？'))return;
+  await dbD('presets',id);
+  await rPresetMgrList();
+  await rPresetChips();
+  flash('已刪除預設組合');
+}
+
+async function newPreset(){
+  // Build a preset from the CURRENT quote sections
+  const name=prompt('請輸入新預設組合名稱：');
+  if(!name||!name.trim())return;
+  const icon=prompt('選一個 Emoji 圖示（可留空用預設 📋）：')||'📋';
+  const desc=prompt('簡短描述這個組合（可留空）：')||'';
+
+  const sections=S.secs.map(sec=>({
+    name:sec.name,
+    itemIds:sec.items.map(it=>it._srcId).filter(Boolean),
+  })).filter(s=>s.itemIds.length>0);
+
+  if(!sections.length){
+    alert('目前報價單沒有任何來自資料庫的項目，無法儲存為預設組合。\n請先從資料庫挑選項目後再儲存預設。');
+    return;
+  }
+
+  const id='preset_'+Date.now();
+  await dbP('presets',{id,name:name.trim(),desc:desc.trim(),icon,sections});
+  await rPresetMgrList();
+  await rPresetChips();
+  flash(`已儲存預設組合：${icon}${name.trim()}`);
+}
+
+async function editPreset(id){
+  const presets=await loadPresets();
+  const p=presets.find(x=>x.id===id);if(!p)return;
+  const name=prompt('修改組合名稱：',p.name);if(name===null)return;
+  const icon=prompt('修改 Emoji 圖示：',p.icon||'📋');if(icon===null)return;
+  const desc=prompt('修改描述：',p.desc||'');if(desc===null)return;
+  await dbP('presets',{...p,name:name.trim(),icon:icon.trim()||'📋',desc:desc.trim()});
+  await rPresetMgrList();
+  await rPresetChips();
+  flash('已更新預設組合');
+}
+
+/* ========== ITEM PICKER MODAL (報價單 ← 資料庫) ========== */
+const PICKER={checked:new Set()};
+
+async function openPicker(presetSectionIdx){
+  await loadMasterDb();
+  PICKER.checked=new Set();
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay';
+  overlay.id='pickerOverlay';
+  overlay.innerHTML=`
+    <div class="modal-box">
+      <div class="modal-hd">
+        <h3>📚 從資料庫選取項目</h3>
+        <button class="modal-close" id="pickerCloseBtn">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-toolbar">
+          <input type="search" id="pickerSearch" placeholder="搜尋項目名稱、說明…">
+          <select id="pickerCatFilter">
+            <option value="">全部分類</option>
+            ${MDB.cats.map(c=>`<option value="${esc(c.id)}">${esc(c.label)}</option>`).join('')}
+          </select>
+        </div>
+        <div id="pickerList"></div>
+      </div>
+      <div class="modal-ft">
+        <div class="modal-ft-info" id="pickerSelCount">已選 0 項</div>
+        <div class="modal-ft-target">
+          <label>加入到：</label>
+          <select id="pickerTargetSec"></select>
+        </div>
+        <button class="btn bg" id="pickerCancelBtn">取消</button>
+        <button class="btn ba" id="pickerConfirmBtn">帶入報價單</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  // Populate target section dropdown from current S.secs (+ option to create new per category)
+  fillPickerTargets();
+
+  // If opened from a specific section's "從資料庫加入 X 類項目" button, pre-select
+  // that section as the target AND pre-filter the item list to a matching category
+  // (best-effort match by section name against known category labels) so the
+  // user lands directly on relevant items instead of browsing everything.
+  if(presetSectionIdx!==undefined&&S.secs[presetSectionIdx]){
+    const targetSel=$('pickerTargetSec');
+    if(targetSel)targetSel.value=`idx:${presetSectionIdx}`;
+    const secName=S.secs[presetSectionIdx].name;
+    const matchedCat=MDB.cats.find(c=>c.label===secName||c.id===secName);
+    if(matchedCat){
+      const catSel=$('pickerCatFilter');
+      if(catSel)catSel.value=matchedCat.id;
+    }
+  }
+
+  rPickerList();
+
+  $('pickerSearch').addEventListener('input',()=>rPickerList());
+  $('pickerCatFilter').addEventListener('change',()=>rPickerList());
+  $('pickerCloseBtn').addEventListener('click',closePicker);
+  $('pickerCancelBtn').addEventListener('click',closePicker);
+  $('pickerConfirmBtn').addEventListener('click',confirmPicker);
+  overlay.addEventListener('click',e=>{if(e.target===overlay)closePicker()});
+}
+
+function fillPickerTargets(){
+  const sel=$('pickerTargetSec');if(!sel)return;
+  const existing=S.secs.map((s,i)=>`<option value="idx:${i}">${LTRS[i]||i+1}　${esc(s.name)}（現有）</option>`).join('');
+  const newOpts=MDB.cats.map(c=>`<option value="new:${esc(c.id)}">＋ 新增「${esc(c.label)}」大類</option>`).join('');
+  sel.innerHTML=existing+newOpts;
+}
+
+function rPickerList(){
+  const w=$('pickerList');if(!w)return;
+  const q=($('pickerSearch')?.value||'').trim().toLowerCase();
+  const catFilter=$('pickerCatFilter')?.value||'';
+
+  let items=MDB.items.filter(i=>i.active!==false);
+  if(catFilter)items=items.filter(i=>i.cat===catFilter);
+  if(q)items=items.filter(i=>
+    (i.name||'').toLowerCase().includes(q)||
+    (i.desc||'').toLowerCase().includes(q)||
+    (i.sub||'').toLowerCase().includes(q)
+  );
+
+  if(!items.length){w.innerHTML='<div class="el">沒有符合條件的項目</div>';return}
+
+  const catOrder=MDB.cats.map(c=>c.id);
+  const groups={};
+  items.forEach(i=>{(groups[i.cat]=groups[i.cat]||[]).push(i)});
+  const orderedKeys=[...catOrder.filter(c=>groups[c]),...Object.keys(groups).filter(c=>!catOrder.includes(c))];
+
+  w.innerHTML=orderedKeys.map(catKey=>{
+    const label=MDB.cats.find(c=>c.id===catKey)?.label||catKey;
+    const list=groups[catKey].sort((a,b)=>(b.fav?1:0)-(a.fav?1:0)||(a.order||0)-(b.order||0));
+    const rows=list.map(it=>{
+      const checked=PICKER.checked.has(it.id);
+      return`<div class="picker-item${checked?' checked':''}" data-id="${esc(it.id)}">
+        <input type="checkbox" ${checked?'checked':''} data-id="${esc(it.id)}">
+        <div class="picker-item-info">
+          <div class="picker-item-top">
+            ${it.fav?'<span style="color:#f59e0b">★</span>':''}
+            <span class="picker-item-name">${esc(it.name)}</span>
+            <span class="picker-item-spec">${esc(it.spec||'')}</span>
+          </div>
+          <div class="picker-item-desc">${esc(it.desc||'')}</div>
+        </div>
+        <div class="picker-item-price">$${fmt(it.price)}</div>
+      </div>`;
+    }).join('');
+    return`<div class="picker-cat-hd">${esc(label)}</div>${rows}`;
+  }).join('');
+
+  w.querySelectorAll('.picker-item').forEach(row=>{
+    row.addEventListener('click',e=>{
+      if(e.target.tagName==='INPUT')return; // checkbox handles itself via change
+      const cb=row.querySelector('input[type=checkbox]');
+      cb.checked=!cb.checked;
+      cb.dispatchEvent(new Event('change',{bubbles:true}));
+    });
+    row.querySelector('input[type=checkbox]').addEventListener('change',e=>{
+      const id=e.target.dataset.id;
+      if(e.target.checked)PICKER.checked.add(id);else PICKER.checked.delete(id);
+      row.classList.toggle('checked',e.target.checked);
+      updatePickerSelCount();
+    });
+  });
+  updatePickerSelCount();
+}
+
+function updatePickerSelCount(){
+  const el=$('pickerSelCount');if(el)el.textContent=`已選 ${PICKER.checked.size} 項`;
+}
+
+function closePicker(){
+  document.getElementById('pickerOverlay')?.remove();
+}
+
+function confirmPicker(){
+  if(PICKER.checked.size===0){flash('請至少選擇一個項目');return}
+  const target=$('pickerTargetSec')?.value||'';
+  const selectedItems=MDB.items.filter(i=>PICKER.checked.has(i.id));
+
+  let targetIdx;
+  if(target.startsWith('idx:')){
+    targetIdx=Number(target.split(':')[1]);
+  }else if(target.startsWith('new:')){
+    const catKey=target.split(':')[1];
+    const catLabel=MDB.cats.find(c=>c.id===catKey)?.label||catKey;
+    S.secs.push({name:catLabel,pkg:0,items:[],footnote:''});
+    targetIdx=S.secs.length-1;
+  }else{
+    targetIdx=0;
+  }
+
+  if(!S.secs[targetIdx])S.secs[targetIdx]={name:'新大類',pkg:0,items:[],footnote:''};
+
+  selectedItems.forEach(it=>{
+    S.secs[targetIdx].items.push({
+      name:it.name,
+      desc:it.desc||'',
+      qty:'1',
+      unit:it.unit||'',
+      cost:Number(it.cost)||0,
+      _srcId:it.id, // traceability only; editing here never writes back to the master DB
+    });
+  });
+
+  closePicker();
+  rEditor();sR();
+  switchTab('items');
+  flash(`已帶入 ${selectedItems.length} 個項目`);
+}
+
+/* ========== CONTRACTS ========== */
+async function fillConSels(){
+  const all=await dbA('contracts');
+  const opts=all.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
+  ['contractList'].forEach(id=>{if($(id))$(id).innerHTML=opts||'<option value="">（無）</option>'});
+}
+async function saveCon(){
+  const name=$('contractName')?.value.trim()||'合約',body=$('contractEd')?.innerHTML||'',id=S.cid||('ct_'+Date.now());
+  S.cid=id;await dbP('contracts',{id,name,body});fillConSels();flash('合約已儲存 ✓');
+}
+async function loadCon(){
+  const id=$('contractList')?.value;if(!id)return;
+  const c=await dbG('contracts',id);if(!c)return;
+  S.cid=id;if($('contractName'))$('contractName').value=c.name;if($('contractEd'))$('contractEd').innerHTML=c.body;
+}
+async function delCon(){
+  if(!S.cid||!confirm('確定刪除？'))return;
+  await dbD('contracts',S.cid);S.cid=null;
+  $('contractName').value='';$('contractEd').innerHTML='';fillConSels();flash('已刪除');
+}
+function insertVar(v){const ed=$('contractEd');if(!ed)return;ed.focus();document.execCommand('insertText',false,v)}
+
+/* ========== BACKUP ========== */
+async function expAll(){
+  const data={quotes:await dbA('quotes'),customers:await dbA('customers'),contracts:await dbA('contracts'),staff:await dbA('staff'),master_items:await dbA('master_items'),master_cats:await dbA('master_cats'),presets:await dbA('presets'),assets:Object.entries(A).filter(([,v])=>v).map(([key,url])=>({key,url})),exportedAt:new Date().toISOString()};
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+  a.download=`BRICKS_備份_${tod()}.json`;a.click();
+}
+async function impAll(file){
+  if(!file)return;if(!confirm('匯入將覆蓋全部資料，確定？'))return;
+  const r=new FileReader();r.onload=async e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      for(const s of['quotes','customers','contracts','staff','master_items','master_cats','presets']){await dbC(s);for(const it of d[s]||[])await dbP(s,it)}
+      if(d.assets){await dbC('assets');for(const a of d.assets)await dbP('assets',a)}
+      await init();flash('資料已匯入 ✓');
+    }catch(err){alert('匯入失敗：'+err.message)}
+  };r.readAsText(file);
+}
+
+/* ========== TABS ========== */
+function switchTab(t){
+  document.querySelectorAll('.tb').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
+  document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('on',p.id===`pane-${t}`));
+  if(t==='saved')rSaved($('savedSearch')?.value||'');
+  if(t==='settings'){fillConSels();rStaffList()}
+  if(t==='mdb')rMdbList();
+  if(t==='items')rPresetChips();
+}
+
+const PAY={
+  half:'訂金50%於確認製作後收取(以保留製作檔期)\n尾款50%於交付完整影片後30天內收取',
+  full:'專案費用全額於合約簽訂後支付，款項到帳後正式啟動製作',
+  month:'專案費用於驗收完成後一個月內匯款支付'
+};
+function applyPay(v){if(v!=='custom'&&PAY[v])$('paymentTerms').value=PAY[v]}
+
+/* ========== INIT ========== */
+async function init(){
+  S.secs=DS.map(s=>({...s,items:s.items.map(it=>({...it}))}));
+  const today=tod(),valid=tod(14);
+  if($('quoteDate'))$('quoteDate').value=today;
+  if($('validUntil'))$('validUntil').value=valid;
+
+  // Render the base UI immediately with sensible defaults, BEFORE touching
+  // IndexedDB. This guarantees the editor and preview are never left blank
+  // even if the database is slow, blocked by another tab, or fails outright.
+  rEditor();rFn();sR();
+
+  try{
+    await openDB();
+    await seedMasterDbIfNeeded();
+    await loadAllAssets();
+    await fillCS();await fillConSels();await fillOC();await rPresetChips();
+    if($('contractEd')&&!$('contractEd').innerHTML.trim())$('contractEd').innerHTML=DC;
+    if($('quoteNo'))$('quoteNo').value=await nextNo();
+    rEditor();rFn();sR();
+  }catch(err){
+    if($('contractEd')&&!$('contractEd').innerHTML.trim())$('contractEd').innerHTML=DC;
+    if($('quoteNo')&&!$('quoteNo').value)$('quoteNo').value='RB'+Date.now().toString().slice(-8);
+    flash('⚠ 本機資料庫連線失敗，已用暫存模式開啟（請重新整理或關閉其他分頁後再試）');
+  }
+}
+
+document.addEventListener('DOMContentLoaded',async()=>{
+  await init();
+
+  // Tab buttons
+  document.querySelectorAll('.tb').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+
+  // Form inputs → refresh
+  [...FLD,'discount','taxRate','paymentTerms','bankInfo'].forEach(id=>{$(id)?.addEventListener('input',()=>sR());$(id)?.addEventListener('change',()=>sR())});
+
+  // PDF checkboxes
+  document.querySelectorAll('[id^="pc-"]').forEach(el=>el.addEventListener('change',()=>sR()));
+
+  // Date: auto set validUntil = quoteDate + 14
+  $('quoteDate')?.addEventListener('change',e=>{
+    const d=new Date(e.target.value);if(isNaN(d.getTime()))return;
+    d.setDate(d.getDate()+14);$('validUntil').value=d.toISOString().slice(0,10);sR();
+  });
+
+  $('payPreset')?.addEventListener('change',e=>applyPay(e.target.value));
+
+  $('customerSelect')?.addEventListener('change',async e=>{
+    const id=e.target.value;if(!id)return;const c=await dbG('customers',id);if(!c)return;
+    [['customerName','name'],['customerShort','short'],['customerVat','vat'],
+     ['customerContact','contact'],['customerPhone','phone'],['customerAddress','address']
+    ].forEach(([f,k])=>{if($(f))$(f).value=c[k]||''});sR();
+  });
+
+  // Brand asset uploads
+  const assetMap=[['up-logo','logo'],['up-stamp1','stamp1'],['up-stamp2','stamp2'],['up-invoice','invoice'],['up-signature','signature']];
+  assetMap.forEach(([inputId,key])=>{
+    $(inputId)?.addEventListener('change',async e=>{
+      const f=e.target.files[0];if(!f)return;
+      const url=await toURL(f);await saveAsset(key,url);flash(`${key} 已更新`);
+    });
+  });
+
+  $('savedSearch')?.addEventListener('input',e=>rSaved(e.target.value));
+  $('saveBtn')?.addEventListener('click',saveQ);
+  $('dupBtn')?.addEventListener('click',dupQuote);
+  $('newVerBtn')?.addEventListener('click',newVer);
+  $('newQuoteBtn')?.addEventListener('click',newQuote);
+  $('addSecBtn')?.addEventListener('click',addSec);
+  $('printBtn')?.addEventListener('click',()=>{document.title=$('exportFn')?.value||'BRICKS_報價單';window.print()});
+  $('custCsv')?.addEventListener('change',e=>{if(e.target.files[0])loadCustCsv(e.target.files[0])});
+  $('clearCustBtn')?.addEventListener('click',async()=>{if(!confirm('確定清除所有客戶？'))return;await dbC('customers');fillCS();flash('客戶已清除')});
+  $('addStaffBtn')?.addEventListener('click',addStaff);
+
+  // Master item database tab
+  $('mdbAddBtn')?.addEventListener('click',addMdbItem);
+  $('mdbAddCatBtn')?.addEventListener('click',addMdbCat);
+  $('mdbSearch')?.addEventListener('input',()=>rMdbList());
+  $('mdbCatFilter')?.addEventListener('change',()=>rMdbList());
+  $('mdbFavOnly')?.addEventListener('change',()=>rMdbList());
+
+  // "從資料庫選取項目" button inside 報價項目 tab
+  $('pickFromDbBtn')?.addEventListener('click',openPicker);
+  $('managePresetsBtn')?.addEventListener('click',openPresetManager);
+  $('saveContractBtn')?.addEventListener('click',saveCon);
+  $('newContractBtn')?.addEventListener('click',()=>{S.cid=null;$('contractName').value='';$('contractEd').innerHTML=DC});
+  $('delContractBtn')?.addEventListener('click',delCon);
+  $('loadContractBtn')?.addEventListener('click',loadCon);
+  $('exportAllBtn')?.addEventListener('click',expAll);
+  $('importFile')?.addEventListener('change',e=>impAll(e.target.files[0]));
+});
+</script>
+</body>
+</html>
