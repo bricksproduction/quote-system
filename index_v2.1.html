@@ -255,8 +255,17 @@ textarea.fi{resize:vertical}
 .ssec{margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--brd)}
 .ssec:last-child{border-bottom:none}
 .ced{border:1px solid var(--brd);border-radius:3px;min-height:160px;padding:7px;font-size:11px;line-height:1.75;background:var(--paper)}
+.ced-tabs{display:flex;gap:4px;margin-bottom:6px}
+.con-edit-box{border:1.5px solid #d8d3ca;border-radius:6px;padding:12px;margin-top:8px;background:#fff}
+.con-edit-hd{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:8px}
+.con-edit-hint{font-weight:400;color:#999;font-size:10px}
+.con-save-box{border:1.5px dashed #c9b8a8;border-radius:6px;padding:12px;margin-top:10px;background:#faf6f0}
+.con-save-hd{font-size:11px;font-weight:700;color:var(--ink-m);margin-bottom:8px;letter-spacing:.05em}
+.ced-tab{padding:5px 14px;font-size:12px;font-weight:600;border:1px solid var(--brd);border-radius:4px;background:#f0ede8;color:var(--ink-m);cursor:pointer}
+.ced-tab.on{background:var(--acc);color:#fff;border-color:var(--acc)}
 .ced:focus{outline:1px solid var(--acc)}
-.vcs{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.vcs{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;align-items:center}
+.vcs-lbl{font-size:10px;color:var(--ink-m);margin-right:2px}
 .vc{background:#edeae4;border:1px solid var(--brd);border-radius:2px;padding:1px 7px;font-size:10px;cursor:pointer;font-family:monospace}
 .vc:hover{background:#e0dbd3}
 
@@ -333,6 +342,16 @@ textarea.fi{resize:vertical}
 .cam{width:58pt;text-align:right;font-weight:700;white-space:nowrap;vertical-align:top;font-size:8pt}
 /* Section header row */
 .sh td{background:#3d3a36;color:#fff;font-weight:700;font-size:8.5pt;letter-spacing:.08em;padding:3pt 7pt;vertical-align:middle;text-align:center;border-left:3pt solid var(--acc)}
+.sh-opt td{background:#8a8378;border-left-color:#6b6459}
+.sh-opt-note{font-size:7pt;font-weight:500;opacity:.9;margin-left:6pt}
+.pkg-amt-opt td{background:#efece7;font-style:italic}
+.sec-blk-opt{border:1.5px dashed #b0a99c;background:#faf8f4}
+.sec-opt-badge{display:inline-block;background:#8a8378;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;white-space:nowrap;margin:0 6px}
+.item-en{margin:4px 0;font-size:12px}
+.item-en summary{cursor:pointer;color:#6b7280;font-size:11px;padding:2px 0;user-select:none}
+.item-en summary:hover{color:var(--acc)}
+.item-en input,.item-en textarea{width:100%;margin-top:4px;padding:5px 8px;border:1px solid #d8d3ca;border-radius:4px;font-size:12px;background:#fafafa}
+.item-nm-en{font-weight:600}
 .sh td>div{width:100%}
 .sh .sh-tot{color:#fbbf24;font-size:9pt;font-weight:700;white-space:nowrap}
 /* footnote row */
@@ -375,9 +394,11 @@ textarea.fi{resize:vertical}
 .cp-content li{margin-bottom:2pt}
 .cp-bot{margin-top:auto;padding-top:5mm}
 .cp-sig-grid{display:grid;grid-template-columns:1fr 1fr;gap:20pt;margin-top:4mm}
-.cp-sig-box{border-top:.6pt solid #b4b0a8;padding:3pt 0 28pt;font-size:7pt;color:var(--ink-m);text-align:left}
-.cp-sig-img-wrap{height:24pt;display:flex;align-items:flex-end;padding-top:3pt}
-.cp-sig-img{max-height:22pt;max-width:120pt;object-fit:contain}
+.cp-sig-cell{text-align:left}
+.cp-sig-space{height:30pt;display:flex;align-items:flex-end;justify-content:flex-start;padding-bottom:2pt}
+.cp-sig-line{border-top:.6pt solid #b4b0a8}
+.cp-sig-lbl{font-size:7pt;color:var(--ink-m);padding-top:3pt}
+.cp-sig-img{max-height:28pt;max-width:120pt;object-fit:contain}
 .cp-stamp-row{display:flex;align-items:flex-end;gap:16pt;margin-top:6mm}
 .cp-co-name{font-size:8.5pt;font-weight:700;margin-bottom:4pt}
 .cp-stamp-slots{display:flex;gap:10pt}
@@ -440,7 +461,11 @@ textarea.fi{resize:vertical}
       <div class="fs">
         <div class="st">公司資訊</div>
         <div class="fr"><label>公司名稱</label><input type="text" class="fi" id="companyName" value="紅磚影像製作有限公司"></div>
+        <div class="fr"><label>公司名稱（英文·給外國客戶）</label><input type="text" class="fi" id="companyNameEn" value="Bricks Production, Ltd."></div>
         <div class="fr"><label>地址 / 電話 / Email（多行）</label><textarea class="fi" id="companyInfo" rows="3">新北市新店區北新路一段271巷47號1樓
++886 963-632-962　　93711363
+service@bricksproduction.com</textarea></div>
+        <div class="fr"><label>地址 / 電話 / Email（英文·給外國客戶）</label><textarea class="fi" id="companyInfoEn" rows="3">1F., No. 47, Ln. 271, Sec. 1, Beixin Rd., Xindian Dist., New Taipei City 231046, Taiwan (R.O.C.)
 +886 963-632-962　　93711363
 service@bricksproduction.com</textarea></div>
       </div>
@@ -501,6 +526,14 @@ service@bricksproduction.com</textarea></div>
 尾款50%於交付完整影片後30天內收取</textarea></div>
         <div class="fr"><label>匯款帳號</label><textarea class="fi" id="bankInfo" rows="2">土地銀行 005 永和分行 帳號：049001161805
 戶名：紅磚影像製作有限公司</textarea></div>
+        <div class="fr"><label>付款條件說明（英文版·給外國客戶）</label><textarea class="fi" id="paymentTermsEn" rows="3">Deposit: 50% upon confirmation to secure the production schedule.
+Final Payment: 50% after the shooting.</textarea></div>
+        <div class="fr"><label>匯款資訊（英文版·含 SWIFT 跨國匯款）</label><textarea class="fi" id="bankInfoEn" rows="6">Bank Name: Land Bank of Taiwan
+SWIFT/BIC Code: LBOTTWTP
+Account Number: 049001161805
+Account Name: Bricks Production Ltd.
+Beneficiary Name: Yu-Shin Chang
+Phone Number: +886963632962</textarea></div>
       </div>
       <div class="fs">
         <div class="st">PDF 輸出控制</div>
@@ -646,24 +679,45 @@ service@bricksproduction.com</textarea></div>
         <div id="staffList" style="margin-top:8px"></div>
       </div>
       <div class="ssec">
-        <div class="st">合約範本</div>
-        <div class="fr"><label>合約名稱</label><input type="text" class="fi" id="contractName" value="標準合約"></div>
-        <div class="fr"><label>合約內容（支援 {{變數}} 替換）</label><div id="contractEd" class="ced" contenteditable="true"></div></div>
-        <div class="vcs">
-          <span class="vc" onclick="insertVar('{{公司名稱}}')">{{公司名稱}}</span>
-          <span class="vc" onclick="insertVar('{{客戶名稱}}')">{{客戶名稱}}</span>
-          <span class="vc" onclick="insertVar('{{專案名稱}}')">{{專案名稱}}</span>
-          <span class="vc" onclick="insertVar('{{報價單號}}')">{{報價單號}}</span>
-          <span class="vc" onclick="insertVar('{{報價日期}}')">{{報價日期}}</span>
-          <span class="vc" onclick="insertVar('{{有效日期}}')">{{有效日期}}</span>
+        <div class="st">合約範本管理（可存多份·中英雙語）</div>
+        <p class="tip" style="margin-bottom:8px">在這裡編輯合約範本。要讓哪一份出現在報價單，到「基本資料」的合約選擇器指定。</p>
+
+        <div class="fr"><label>① 選擇要編輯的範本</label>
+          <select class="fi" id="contractList"><option value="">＋ 新範本</option></select>
         </div>
-        <div class="bgrp" style="margin-top:8px">
-          <button class="btn bp sm" id="saveContractBtn">儲存合約</button>
-          <button class="btn bg sm" id="newContractBtn">新合約</button>
-          <button class="btn bd sm" id="delContractBtn">刪除</button>
+
+        <div class="fr"><label>② 範本名稱</label><input type="text" class="fi" id="contractName" placeholder="例：標準合約 / 活動拍攝合約"></div>
+
+        <!-- 編輯區（純編輯，不會動到存檔） -->
+        <div class="con-edit-box">
+          <div class="con-edit-hd">③ 編輯合約內容 <span class="con-edit-hint">（邊改邊預覽，改完要按下方「儲存範本」才會存檔）</span></div>
+          <div class="ced-tabs">
+            <button type="button" class="ced-tab on" data-ced="zh" onclick="switchCed('zh')">🇹🇼 中文版</button>
+            <button type="button" class="ced-tab" data-ced="en" onclick="switchCed('en')">🇬🇧 English</button>
+          </div>
+          <div id="cedZhWrap"><div id="contractEd" class="ced" contenteditable="true"></div></div>
+          <div id="cedEnWrap" style="display:none"><div id="contractEdEn" class="ced" contenteditable="true"></div></div>
+          <div class="vcs" style="margin-top:6px">
+            <span class="vcs-lbl">插入變數：</span>
+            <span class="vc" onclick="insertVar('{{公司名稱}}')">{{公司名稱}}</span>
+            <span class="vc" onclick="insertVar('{{客戶名稱}}')">{{客戶名稱}}</span>
+            <span class="vc" onclick="insertVar('{{專案名稱}}')">{{專案名稱}}</span>
+            <span class="vc" onclick="insertVar('{{報價單號}}')">{{報價單號}}</span>
+            <span class="vc" onclick="insertVar('{{報價日期}}')">{{報價日期}}</span>
+            <span class="vc" onclick="insertVar('{{有效日期}}')">{{有效日期}}</span>
+          </div>
         </div>
-        <div class="fr" style="margin-top:8px"><label>現有合約</label><select class="fi" id="contractList"></select></div>
-        <button class="btn bg sm" id="loadContractBtn">載入編輯</button>
+
+        <!-- 儲存/管理區（跟編輯區分開） -->
+        <div class="con-save-box">
+          <div class="con-save-hd">儲存與管理</div>
+          <div class="bgrp">
+            <button class="btn bp" id="saveContractBtn">💾 儲存範本</button>
+            <button class="btn bg" id="newContractBtn">＋ 新範本</button>
+            <button class="btn bd" id="delContractBtn">🗑 刪除</button>
+          </div>
+          <p class="tip" style="margin-top:6px">「儲存範本」會把上方內容寫入目前選的範本（會先確認）。想保留原本、另存一份請先按「＋ 新範本」。</p>
+        </div>
       </div>
       <div class="ssec">
         <div class="st">資料備份</div>
@@ -714,6 +768,18 @@ const DC=`<p>委託方（甲方）：<strong>{{客戶名稱}}</strong><br>承接
 <h3>七、保密義務</h3><p>雙方對本合約內容及專案相關資訊負有保密義務，未經對方書面同意，不得對外披露。</p>
 <h3>八、不可抗力</h3><p>因天災、疫情、政府命令或其他不可抗力因素導致履行困難，雙方不負違約責任，並協商調整製作時程。</p>
 <h3>九、爭議解決</h3><p>本合約以中華民國法律為準據法。如有爭議，雙方同意以台灣台北地方法院為第一審管轄法院。</p>`;
+
+// English default contract — parallel translation of the nine clauses above.
+const DC_EN=`<p>Client (Party A): <strong>{{客戶名稱}}</strong><br>Contractor (Party B): <strong>{{公司名稱}}</strong><br>Quotation No.: {{報價單號}}　　Date: {{報價日期}}</p>
+<h3>1. Scope of Project</h3><p>Party A engages Party B to carry out the "{{專案名稱}}" video production project. Party B provides production services per the items listed in this quotation. Any addition or change to the scope must be confirmed in writing and separately quoted.</p>
+<h3>2. Creative Development</h3><p>Creative development takes approximately one week to one month, including advertising concept discussion, theme planning, script writing, and storyboard reference. Special requirements may incur additional charges. Deliverables: one written script and one frame-by-frame reference storyboard.</p>
+<h3>3. Production</h3><p>Production planning begins after the client approves the script. Shooting proceeds after client confirmation, based on the final Pre-Production Meeting (PPM) materials. Footage content cannot be altered after shooting; any reshoot or additional shooting days not caused by force majeure will be quoted separately.</p>
+<h3>4. Post-Production</h3><p>Post-production takes approximately 14 working days, including ingest, file confirmation, edit approval, color grading, audio mixing, and export. The first version is delivered within two weeks after shooting. After the first version, unlimited revisions are allowed within the delivery period. Export format: Rec.709, ProRes422HQ/mov.</p>
+<h3>5. Payment Terms</h3><p>Party A pays according to the amounts and payment terms listed in this quotation. For first-time clients, the final deliverables are provided after full payment. Related production files are retained for 60 days from the acceptance date; source files (edit projects, data, and related content) are not provided.</p>
+<h3>6. Intellectual Property</h3><p>Upon full payment, the intellectual property rights belong to Party A. Party B retains the right to publicly display and reproduce the completed project, and may present it as a case study on various platforms, but not for other uses.</p>
+<h3>7. Confidentiality</h3><p>Both parties have a duty of confidentiality regarding the contract content and project-related information, and may not disclose it externally without the other party's written consent.</p>
+<h3>8. Force Majeure</h3><p>If performance becomes difficult due to natural disasters, epidemics, government orders, or other force majeure, neither party bears liability for breach, and both parties shall negotiate to adjust the production schedule.</p>
+<h3>9. Dispute Resolution</h3><p>This contract is governed by the laws of the Republic of China (Taiwan). In case of dispute, both parties agree to the Taiwan Taipei District Court as the court of first instance.</p>`;
 
 // ============================================================
 // MASTER ITEM DATABASE — 紅磚影像製作 報價項目資料庫
@@ -921,6 +987,7 @@ const DS=[
   {name:'拍攝製作',pkg:0,items:[],footnote:''},
   {name:'後期製作',pkg:0,items:[],footnote:''},
   {name:'額外費用',pkg:0,items:[],footnote:''},
+  {name:'加值項目',pkg:0,items:[],footnote:'',optional:true},
 ];
 
 /* ========== STATE ========== */
@@ -1015,7 +1082,7 @@ async function nextNo(){
   let m=await dbG('meta','ctr');const n=m?m.val+1:1;
   await dbP('meta',{key:'ctr',val:n});
   const d=new Date(),yy=String(d.getFullYear()).slice(2),mm=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
-  return`RB${yy}${mm}${dd}${String(n).padStart(2,'0')}`;
+  return`BP${yy}${mm}${dd}${String(n).padStart(2,'0')}`;
 }
 
 
@@ -1026,7 +1093,24 @@ const EN_CATS={
   '拍攝製作':'Production',
   '後期製作':'Post-Production',
   '額外費用':'Additional',
+  '加值項目':'Optional Items',
 };
+
+// Unit translation for the PDF's Unit column when LANG=en
+const EN_UNITS={
+  '位':'Person','名':'Person','人':'Person',
+  '案':'Proj','式':'Set','份':'Copy','張':'Sheet',
+  '場':'Session','日':'Day','天':'Day','小時':'Hour','時':'Hour',
+  '支':'Clip','部':'Video','則':'Post','首':'Track','次':'Time',
+  '年':'Year','月':'Month','週':'Week',
+  '顆':'Unit','組':'Set','台':'Unit','個':'Unit','片':'Disc',
+  '週期':'Cycle','項':'Item',
+};
+function unitDisp(u){
+  if(!u) return '';
+  if(LANG!=='en') return u;
+  return EN_UNITS[u]||u; // fall back to original if no mapping
+}
 
 const I18N={
   zh:{
@@ -1120,11 +1204,13 @@ function secCostTotal(sec){
 function secAmt(sec){return Number(sec.pkg)||0}
 
 function compTot(){
-  const sub=S.secs.reduce((s,sec)=>s+secAmt(sec),0);
+  // Optional sections are shown to the client but NOT counted in the total
+  const sub=S.secs.reduce((s,sec)=>s+(sec.optional?0:secAmt(sec)),0);
+  const optTotal=S.secs.reduce((s,sec)=>s+(sec.optional?secAmt(sec):0),0);
   const disc=Number($('discount')?.value)||0;
   const taxR=Number($('taxRate')?.value)||0;
   const tax=Math.round((sub-disc)*taxR/100);
-  return{sub,disc,taxR,tax,total:sub-disc+tax};
+  return{sub,disc,taxR,tax,total:sub-disc+tax,optTotal};
 }
 
 /* ========== RENDER EDITOR ========== */
@@ -1169,6 +1255,11 @@ function rEditor(){
           </div>
         </div>
         <textarea class="item-desc" placeholder="說明（顯示在 PDF）" data-si="${si}" data-ii="${ii}" data-f="desc" rows="2">${esc(it.desc||'')}</textarea>
+        <details class="item-en">
+          <summary>🌐 英文版（給外國客戶，可留空自動用資料庫英文）</summary>
+          <input class="item-nm-en" type="text" placeholder="English name（例：Project Director）" value="${esc(it.nameEn||'')}" data-si="${si}" data-ii="${ii}" data-f="nameEn">
+          <textarea class="item-desc-en" placeholder="English description" data-si="${si}" data-ii="${ii}" data-f="descEn" rows="2">${esc(it.descEn||'')}</textarea>
+        </details>
         <div class="item-nr">
           <div></div>
           <div><label>數量</label><input type="number" min="0" step="0.5" value="${parseFloat(String(it.qty||'1').replace(/[^0-9.]/g,''))||1}" data-si="${si}" data-ii="${ii}" data-f="qty"></div>
@@ -1178,10 +1269,12 @@ function rEditor(){
         </div>
       </div>`).join('');
     const emptyHint=sec.items.length===0?`<div class="sec-empty-hint">（此類尚無項目）</div>`:'';
-    return`<div class="sec-blk">
+    const optBadge=sec.optional?`<span class="sec-opt-badge">加值·不計入總價</span>`:'';
+    return`<div class="sec-blk${sec.optional?' sec-blk-opt':''}">
       <div class="sec-hd">
         <div class="sec-ltr">${L}</div>
         <input class="sec-nm-inp" type="text" value="${esc(sec.name)}" data-si="${si}" data-f="name">
+        ${optBadge}
         <div class="sec-pkg">
           <label>統包報價 ${c}</label>
           <input type="text" inputmode="numeric" value="${sec.pkg||''}" data-si="${si}" data-f="pkg" placeholder="0">
@@ -1275,10 +1368,10 @@ function rFn(){
 }
 
 /* ---- Gather all data ---- */
-const FLD=['companyName','companyInfo','quoteNo','versionTag','quoteDate','validUntil',
+const FLD=['companyName','companyNameEn','companyInfo','companyInfoEn','quoteNo','versionTag','quoteDate','validUntil',
   'customerName','customerShort','customerVat','customerContact','customerPhone','customerAddress',
   'projectName','filmSpec','ownContact','currency','taxRate','discount','schedule',
-  'paymentTerms','bankInfo'];
+  'paymentTerms','bankInfo','paymentTermsEn','bankInfoEn'];
 
 function gather(){
   const d={};
@@ -1376,12 +1469,12 @@ function paginate(d){
 function brandMark(d){
   const logo=A.logo?`<img src="${A.logo}" alt="logo">`
     :`<div class="ph-logo-box"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="1" y="1" width="8" height="8" fill="white" opacity=".9"/><rect x="13" y="1" width="8" height="8" fill="white" opacity=".9"/><rect x="1" y="13" width="8" height="8" fill="white" opacity=".9"/><rect x="13" y="13" width="8" height="8" fill="white" opacity=".9"/></svg></div>`;
-  const coInfo=(d.companyInfo||'').split('\n').map(l=>esc(l.trim())).filter(Boolean).join('<br>');
+  const coInfo=(LANG==='en'?(d.companyInfoEn||d.companyInfo||''):(d.companyInfo||'')).split('\n').map(l=>esc(l.trim())).filter(Boolean).join('<br>');
   return`<div class="ph">
     <div class="ph-left">
       <div class="ph-logo">${logo}</div>
       <div class="ph-co">
-        <h1>${esc(d.companyName||'紅磚影像製作有限公司')}</h1>
+        <h1>${esc(LANG==='en'?(d.companyNameEn||'Bricks Production, Ltd.'):(d.companyName||'紅磚影像製作有限公司'))}</h1>
         <p>${coInfo}</p>
       </div>
     </div>
@@ -1395,6 +1488,29 @@ function brandMark(d){
       </div>
     </div>
   </div>`;
+}
+
+// Resolve an item's display name/desc for the current language.
+// Priority: item's own EN field > master DB (via _srcId) > Chinese fallback.
+function itemDisp(it,field){
+  // field is 'name' or 'desc'
+  if(LANG!=='en') return it[field]||'';
+  const enField=field+'En'; // nameEn / descEn
+  // 1. Item's own English field
+  if(it[enField]) return it[enField];
+  // 2. Master DB lookup by _srcId (items picked from DB carry this)
+  if(it._srcId&&MDB&&MDB.items){
+    const m=MDB.items.find(x=>x.id===it._srcId);
+    if(m&&m[enField]) return m[enField];
+  }
+  // 3. Legacy fallback: match by Chinese name against master DB.
+  //    Covers old quote items saved before _srcId existed.
+  if(it.name&&MDB&&MDB.items){
+    const m=MDB.items.find(x=>x.name===it.name);
+    if(m&&m[enField]) return m[enField];
+  }
+  // 4. Fallback to Chinese so nothing is blank
+  return it[field]||'';
 }
 
 // rQDoc: renders all quote sections as ONE continuous document.
@@ -1433,25 +1549,33 @@ function rQDoc(d,t){
     if(sec.items.length===0&&!sec.footnote)return;
     const L=LTRS[si]||String(si+1),amt=secAmt(sec);
     const secName=LANG==='en'?(EN_CATS[sec.name]||sec.name):sec.name;
-    rows+=`<tr class="sh"><td colspan="${baseCols+1}" style="padding:3.5pt 7pt">${L}${esc(secName)}</td></tr>`;
+    // Optional section: append "not included in total" note
+    const optNote=sec.optional
+      ? (LANG==='en'?'（Not included in the total price）':'（不計入總價）')
+      : '';
+    const shCls=sec.optional?'sh sh-opt':'sh';
+    rows+=`<tr class="${shCls}"><td colspan="${baseCols+1}" style="padding:3.5pt 7pt">${L}. ${esc(secName)}${optNote?`<span class="sh-opt-note">${optNote}</span>`:''}</td></tr>`;
     sec.items.forEach((it,ii)=>{
-      const iName=LANG==='en'?(it.nameEn||it.name):it.name;
-      const iDesc=LANG==='en'?(it.descEn||it.desc||''):(it.desc||'');
+      const iName=itemDisp(it,'name');
+      const iDesc=itemDisp(it,'desc');
       const td=(content,cls='')=>`<td${cls?' class="'+cls+'"':''}>${content}</td>`;
       rows+=`<tr>
         ${td(`${L}${ii+1}`,'cno')}
         ${td(esc(iName),'cnm')}
         ${d.pc.desc?td(esc(iDesc).replace(/\n/g,'<br>'),'cds'):''}
         ${d.pc.qty?td(String(it.qty||'1'),'cqt'):''}
-        ${d.pc.unit?td(esc(it.unit||''),'cut'):''}
+        ${d.pc.unit?td(esc(unitDisp(it.unit||'')),'cut'):''}
       </tr>`;
     });
     if(sec.footnote){
       rows+=`<tr class="fn"><td colspan="${baseCols+1}">＊${esc(sec.footnote)}</td></tr>`;
     }
     if(d.pc.secamt&&amt>0){
-      rows+=`<tr class="pkg-amt-row"><td colspan="${baseCols+1}">
-        <span class="pkg-amt-label">${L}${esc(secName)}　${T('pdf_subtotal')}</span>
+      const subLabel=sec.optional
+        ? (LANG==='en'?'Optional Total':'加值小計')
+        : T('pdf_subtotal');
+      rows+=`<tr class="pkg-amt-row${sec.optional?' pkg-amt-opt':''}"><td colspan="${baseCols+1}">
+        <span class="pkg-amt-label">${L}. ${esc(secName)}　${subLabel}</span>
         <span class="pkg-amt-val">${c}&nbsp;${fmt(amt)}</span>
       </td></tr>`;
     }
@@ -1460,9 +1584,11 @@ function rQDoc(d,t){
   // Totals + payment + signature
   const disc=t.disc>0?`<tr><td>${T('pdf_discount')}｜</td><td>- ${c}&nbsp;${fmt(t.disc)}</td></tr>`:'';
   const taxR=t.taxR>0?`<tr><td>${T('pdf_tax')}(${t.taxR}%)｜</td><td>${c}&nbsp;${fmt(t.tax)}</td></tr>`:'';
+  // Bank info: use English template when LANG=en (if provided), else Chinese
+  const bankText=LANG==='en'?(d.bankInfoEn||d.bankInfo||''):(d.bankInfo||'');
   const payHtml=d.pc.payment?`
-    <div>${d.schedule?`<h4>${T('pdf_schedule')}</h4><p>${esc(d.schedule).replace(/\n/g,'<br>')}</p><div style="height:4pt"></div>`:''}<h4>${T('pdf_payment')}</h4><p>${esc(d.paymentTerms||'').replace(/\n/g,'<br>')}</p>
-    <h4 style="margin-top:5pt">${T('pdf_bank')}</h4><p><strong>${esc(d.bankInfo||'').replace(/\n/g,'<br>')}</strong></p></div>`:'<div></div>';
+    <div>${d.schedule?`<h4>${T('pdf_schedule')}</h4><p>${esc(d.schedule).replace(/\n/g,'<br>')}</p><div style="height:4pt"></div>`:''}<h4>${T('pdf_payment')}</h4><p>${esc(LANG==='en'?(d.paymentTermsEn||d.paymentTerms||''):(d.paymentTerms||'')).replace(/\n/g,'<br>')}</p>
+    <h4 style="margin-top:5pt">${T('pdf_bank')}</h4><p><strong>${esc(bankText).replace(/\n/g,'<br>')}</strong></p></div>`:'<div></div>';
   const sigHtml=d.pc.sig?`<div class="sig-row"><div class="sig-box">${T('pdf_sig_client')}</div></div>`:'';
   const botHtml=`<div class="bot">
     <div class="bot-grid">
@@ -1477,7 +1603,7 @@ function rQDoc(d,t){
   </div>`;
 
   const pgFooter=`<div class="page-footer">
-    <span class="page-footer-co">${esc(d.companyName||'紅磚影像製作有限公司')}</span>
+    <span class="page-footer-co">${esc(LANG==='en'?(d.companyNameEn||'Bricks Production, Ltd.'):(d.companyName||'紅磚影像製作有限公司'))}</span>
     <span>${esc(d.quoteNo||'')}</span>
   </div>`;
 
@@ -1507,7 +1633,36 @@ let CONTRACT_CACHE={}; // id -> body, refreshed by fillQuoteContractSel
 
 function rCPage(d,pn,total){
   const selId=$('quoteContractSel')?.value||'';
-  const tplBody=selId&&CONTRACT_CACHE[selId]?CONTRACT_CACHE[selId]:DC;
+  // Language-consistent contract body selection.
+  // EN: use the template's English body; if empty, use built-in English (DC_EN).
+  //     NEVER fall back to Chinese content (that caused mixed-language output).
+  // ZH: use the template's Chinese body; if empty, use built-in Chinese (DC).
+  let tplBody;
+  // LIVE PREVIEW: if the Settings tab is active and the contract editor has
+  // content, preview what's being typed right now — WITHOUT saving it. This
+  // lets the user edit and see the result live; the actual save still requires
+  // pressing "儲存範本".
+  const settingsActive=$('pane-settings')?.classList.contains('on');
+  const liveZh=$('contractEd')?.innerHTML||'';
+  const liveEn=$('contractEdEn')?.innerHTML||'';
+  const hasLive=(LANG==='en'?liveEn:liveZh).replace(/<[^>]*>/g,'').trim().length>0;
+
+  if(settingsActive&&hasLive){
+    tplBody=LANG==='en'?(liveEn||DC_EN):(liveZh||DC);
+  } else if(selId&&CONTRACT_CACHE[selId]){
+    const entry=CONTRACT_CACHE[selId];
+    if(typeof entry==='object'){
+      if(LANG==='en'){
+        tplBody=(entry.en&&entry.en.trim())?entry.en:DC_EN;
+      } else {
+        tplBody=(entry.zh&&entry.zh.trim())?entry.zh:DC;
+      }
+    } else {
+      tplBody=LANG==='en'?DC_EN:entry;
+    }
+  } else {
+    tplBody=LANG==='en'?DC_EN:DC;
+  }
   const body=applyV(tplBody,d);
   const mkSlot=(url,lbl)=>url
     ?`<div class="cp-stamp-slot"><img src="${url}" alt="${lbl}"><span class="cp-stamp-label">${lbl}</span></div>`
@@ -1518,21 +1673,26 @@ function rCPage(d,pn,total){
     mkSlot(A.invoice,T('pdf_stamp3')),
   ].filter(Boolean).join('');
   const sigHtml=d.pc.sig?`<div class="cp-sig-grid">
-        <div class="cp-sig-box">${T('pdf_sig_a')}<br><br><br></div>
-        <div class="cp-sig-box">
-          ${T('pdf_sig_b')}
-          ${A.signature?`<div class="cp-sig-img-wrap"><img src="${A.signature}" alt="負責人簽名" class="cp-sig-img"></div>`:'<br><br><br>'}
+        <div class="cp-sig-cell">
+          <div class="cp-sig-space"></div>
+          <div class="cp-sig-line"></div>
+          <div class="cp-sig-lbl">${T('pdf_sig_a')}</div>
+        </div>
+        <div class="cp-sig-cell">
+          <div class="cp-sig-space">${A.signature?`<img src="${A.signature}" alt="負責人簽名" class="cp-sig-img">`:''}</div>
+          <div class="cp-sig-line"></div>
+          <div class="cp-sig-lbl">${T('pdf_sig_b')}</div>
         </div>
       </div>`:'';
   const cpFooter=`<div class="page-footer">
-    <span class="page-footer-co">${esc(d.companyName||'紅磚影像製作有限公司')}</span>
+    <span class="page-footer-co">${esc(LANG==='en'?(d.companyNameEn||'Bricks Production, Ltd.'):(d.companyName||'紅磚影像製作有限公司'))}</span>
     <span>${esc(d.quoteNo||'')}</span>
   </div>`;
   // Compact contract header — just the title, not the full company brandMark
   // (the quotation already carries the company header; no need to repeat it)
   const cpHead=`<div class="cp-head">
     <div class="cp-head-title">${T('pdf_contract_title')}</div>
-    <div class="cp-head-meta">${esc(d.companyName||'紅磚影像製作有限公司')}　|　${esc(d.quoteNo||'')}</div>
+    <div class="cp-head-meta">${esc(LANG==='en'?(d.companyNameEn||'Bricks Production, Ltd.'):(d.companyName||'紅磚影像製作有限公司'))}　|　${esc(d.quoteNo||'')}</div>
   </div>`;
   return`<div class="page cp-page">
     ${cpHead}
@@ -1541,7 +1701,7 @@ function rCPage(d,pn,total){
       ${sigHtml}
       <div class="cp-stamp-row">
         <div>
-          <div class="cp-co-name">${esc(d.companyName||'紅磚影像製作有限公司')}</div>
+          <div class="cp-co-name">${esc(LANG==='en'?(d.companyNameEn||'Bricks Production, Ltd.'):(d.companyName||'紅磚影像製作有限公司'))}</div>
           <div class="cp-stamp-slots">
             ${stampSlots}
           </div>
@@ -1702,11 +1862,24 @@ async function loadMasterDb(){
     const [dbItems, dbCats] = await Promise.all([
       dbA('master_items'), dbA('master_cats')
     ]);
-    // If DB has items, use them (user may have edited/added/deleted)
     MDB.items = dbItems.length > 0 ? dbItems : MASTER_ITEMS.map(i=>({...i}));
     MDB.cats  = dbCats.length  > 0 ? dbCats  : MASTER_CATS.map(c=>({...c}));
+    // Backfill English fields into items stored by an older version that
+    // didn't have nameEn/descEn. Match by id first, then by Chinese name.
+    let patched=0;
+    MDB.items.forEach(it=>{
+      if(it.nameEn&&it.descEn) return; // already has English
+      const src=MASTER_ITEMS.find(m=>m.id===it.id)||MASTER_ITEMS.find(m=>m.name===it.name);
+      if(src){
+        if(!it.nameEn&&src.nameEn){it.nameEn=src.nameEn;patched++}
+        if(!it.descEn&&src.descEn){it.descEn=src.descEn}
+      }
+    });
+    // Persist the backfilled English so it's permanent
+    if(patched>0){
+      for(const it of MDB.items) await dbP('master_items',it);
+    }
   } catch(e) {
-    // IndexedDB unavailable (Safari Private, permissions, etc.) — use constants
     MDB.items = MASTER_ITEMS.map(i=>({...i}));
     MDB.cats  = MASTER_CATS.map(c=>({...c}));
   }
@@ -1823,9 +1996,11 @@ function mdbEditFormHtml(it){
       <div class="fr"><label>分類</label><select class="fi" id="mdbE_cat_${esc(it.id)}">${catOpts}</select></div>
       <div class="fr"><label>子分類</label><input type="text" class="fi" id="mdbE_sub_${esc(it.id)}" value="${esc(it.sub||'')}"></div>
       <div class="fr"><label>項目名稱</label><input type="text" class="fi" id="mdbE_name_${esc(it.id)}" value="${esc(it.name)}"></div>
+      <div class="fr"><label>英文名稱 (English)</label><input type="text" class="fi" id="mdbE_nameEn_${esc(it.id)}" value="${esc(it.nameEn||'')}"></div>
       <div class="fr"><label>規格</label><input type="text" class="fi" id="mdbE_spec_${esc(it.id)}" value="${esc(it.spec||'')}"></div>
-      <div class="fr" style="grid-column:1/-1"><label>說明</label><textarea class="fi" id="mdbE_desc_${esc(it.id)}" rows="2">${esc(it.desc||'')}</textarea></div>
       <div class="fr"><label>單位</label><input type="text" class="fi" id="mdbE_unit_${esc(it.id)}" value="${esc(it.unit||'')}"></div>
+      <div class="fr" style="grid-column:1/-1"><label>說明</label><textarea class="fi" id="mdbE_desc_${esc(it.id)}" rows="2">${esc(it.desc||'')}</textarea></div>
+      <div class="fr" style="grid-column:1/-1"><label>英文說明 (English description)</label><textarea class="fi" id="mdbE_descEn_${esc(it.id)}" rows="2">${esc(it.descEn||'')}</textarea></div>
       <div class="fr"><label>內部成本 $（僅自己可見，不顯示於客戶PDF）</label><input type="number" class="fi" id="mdbE_cost_${esc(it.id)}" value="${it.cost||0}"></div>
     </div>
     <button class="btn ba sm mdb-save-btn" data-id="${esc(it.id)}">💾 儲存修改</button>
@@ -1844,8 +2019,10 @@ async function saveMdbItemEdit(id){
     cat:g('cat')||it.cat,
     sub:g('sub')||'',
     name:g('name')||it.name,
+    nameEn:g('nameEn')||'',
     spec:g('spec')||'',
     desc:g('desc')||'',
+    descEn:g('descEn')||'',
     unit:g('unit')||'',
     cost:Number(g('cost'))||0,
     price:Number(g('cost'))||0,
@@ -2241,57 +2418,92 @@ async function fillQuoteContractSel(){
   const cur=sel.value;
   const all=await dbA('contracts');
   CONTRACT_CACHE={};
-  all.forEach(ct=>{CONTRACT_CACHE[ct.id]=ct.body});
+  all.forEach(ct=>{CONTRACT_CACHE[ct.id]={zh:ct.body||'',en:ct.bodyEn||''}});
   sel.innerHTML='<option value="">內建標準合約</option>'+all.map(ct=>`<option value="${ct.id}">${esc(ct.name)}</option>`).join('');
   if(cur&&CONTRACT_CACHE[cur])sel.value=cur;
 }
 
 async function fillConSels(){
   const all=await dbA('contracts');
-  const opts=all.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
-  ['contractList'].forEach(id=>{if($(id))$(id).innerHTML=opts||'<option value="">（無）</option>'});
+  const opts='<option value="">＋ 新範本</option>'+all.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
+  if($('contractList')){
+    const cur=S.contractId||'';
+    $('contractList').innerHTML=opts;
+    $('contractList').value=cur;
+  }
 }
-async function saveCon(){
-  const name=$('contractName')?.value.trim()||'合約';
-  // Clean empty headings/paragraphs before saving so they never persist
-  let body=($('contractEd')?.innerHTML||'')
+function cleanCedHtml(html){
+  return (html||'')
     .replace(/<h[1-6]>(\s|&nbsp;|<br\s*\/?>)*<\/h[1-6]>/gi,'')
     .replace(/<p>(\s|&nbsp;|<br\s*\/?>)*<\/p>/gi,'')
     .replace(/<div>(\s|&nbsp;|<br\s*\/?>)*<\/div>/gi,'');
+}
+async function saveCon(){
+  const name=$('contractName')?.value.trim()||'合約';
+  const body=cleanCedHtml($('contractEd')?.innerHTML||'');
+  const bodyEn=cleanCedHtml($('contractEdEn')?.innerHTML||'');
+  // If overwriting an existing template, confirm first to prevent accidental
+  // saves while making small edits.
+  if(S.contractId){
+    const existing=await dbG('contracts',S.contractId);
+    if(existing&&!confirm(`確定要覆蓋「${existing.name}」這份範本嗎？\n\n（如果想保留原本、另外存一份，請先按「＋ 新範本」再儲存）`)){
+      return;
+    }
+  }
   const id=S.contractId||('ct_'+Date.now());
   S.contractId=id;
-  await dbP('contracts',{id,name,body});
+  await dbP('contracts',{id,name,body,bodyEn});
   await fillConSels();
   await fillQuoteContractSel();
+  if($('contractList'))$('contractList').value=id;
   const qcs=$('quoteContractSel');
-  if(qcs){qcs.value=id;CONTRACT_CACHE[id]=body;}
+  if(qcs){qcs.value=id;CONTRACT_CACHE[id]={zh:body,en:bodyEn};}
   sR();
-  flash('合約已儲存並套用 ✓');
+  flash('合約範本已儲存（中英雙語）✓');
 }
 async function loadCon(){
-  const id=$('contractList')?.value;if(!id)return;
+  const id=$('contractList')?.value;if(!id){newCon();return;}
   const c=await dbG('contracts',id);if(!c)return;
   S.contractId=id;
   if($('contractName'))$('contractName').value=c.name;
-  if($('contractEd'))$('contractEd').innerHTML=c.body;
-  // Also select this contract for the quote/PDF and re-render
+  if($('contractEd'))$('contractEd').innerHTML=c.body||DC;
+  // If this template has no English body yet, pre-fill the built-in English
+  // contract so the English tab is never blank.
+  if($('contractEdEn'))$('contractEdEn').innerHTML=c.bodyEn||DC_EN;
+  switchCed('zh');
   const qcs=$('quoteContractSel');
-  if(qcs){qcs.value=id;CONTRACT_CACHE[id]=c.body;sR();}
-  flash(`已載入合約：${c.name}`);
+  if(qcs){qcs.value=id;CONTRACT_CACHE[id]={zh:c.body||'',en:c.bodyEn||''};sR();}
+  flash(`已載入範本：${c.name}`);
 }
 async function delCon(){
   if(!S.contractId||!confirm('確定刪除？'))return;
   await dbD('contracts',S.contractId);S.contractId=null;
   $('contractName').value='';$('contractEd').innerHTML='';
+  if($('contractEdEn'))$('contractEdEn').innerHTML='';
   await fillConSels();await fillQuoteContractSel();sR();flash('已刪除');
 }
 function newCon(){
   S.contractId=null;
   if($('contractName'))$('contractName').value='';
   if($('contractEd'))$('contractEd').innerHTML=DC;
-  flash('已建立新合約範本');
+  if($('contractEdEn'))$('contractEdEn').innerHTML=DC_EN;
+  if($('contractList'))$('contractList').value='';
+  switchCed('zh');
+  flash('已建立新範本（已帶入內建中英合約，可直接改）');
 }
-function insertVar(v){const ed=$('contractEd');if(!ed)return;ed.focus();document.execCommand('insertText',false,v)}
+// Switch between zh/en contract editor tabs
+function switchCed(lang){
+  const zh=$('cedZhWrap'),en=$('cedEnWrap');
+  if(zh)zh.style.display=lang==='zh'?'':'none';
+  if(en)en.style.display=lang==='en'?'':'none';
+  document.querySelectorAll('.ced-tab').forEach(b=>b.classList.toggle('on',b.dataset.ced===lang));
+}
+function insertVar(v){
+  // Insert into whichever contract editor is currently visible
+  const enVisible=$('cedEnWrap')&&$('cedEnWrap').style.display!=='none';
+  const ed=enVisible?$('contractEdEn'):$('contractEd');
+  if(!ed)return;ed.focus();document.execCommand('insertText',false,v);
+}
 
 /* ========== BACKUP ========== */
 async function expAll(){
@@ -2320,6 +2532,10 @@ function switchTab(t){
   if(t==='settings'){fillConSels();rStaffList()}
   if(t==='mdb')rMdbList();
   if(t==='items')rPresetChips();
+  // Re-render preview on tab change so the contract live-edit preview (which
+  // only applies while on the Settings tab) correctly switches to the saved
+  // template once the user leaves Settings.
+  sR();
 }
 
 const PAY={
@@ -2345,14 +2561,15 @@ async function init(){
   try{
     await openDB();
     await seedMasterDbIfNeeded();
+    await loadMasterDb();
     await loadAllAssets();
     await fillCS();await fillConSels();await fillOC();await rPresetChips();await fillQuoteContractSel();
-    if($('contractEd')&&!$('contractEd').innerHTML.trim())$('contractEd').innerHTML=DC;
+    if($('contractEd')&&!$('contractEd').innerHTML.trim())$('contractEd').innerHTML=DC;if($('contractEdEn')&&!$('contractEdEn').innerHTML.trim())$('contractEdEn').innerHTML=DC_EN;
     if($('quoteNo'))$('quoteNo').value=await nextNo();
     rEditor();rFn();sR();
   }catch(err){
-    if($('contractEd')&&!$('contractEd').innerHTML.trim())$('contractEd').innerHTML=DC;
-    if($('quoteNo')&&!$('quoteNo').value)$('quoteNo').value='RB'+Date.now().toString().slice(-8);
+    if($('contractEd')&&!$('contractEd').innerHTML.trim())$('contractEd').innerHTML=DC;if($('contractEdEn')&&!$('contractEdEn').innerHTML.trim())$('contractEdEn').innerHTML=DC_EN;
+    if($('quoteNo')&&!$('quoteNo').value)$('quoteNo').value='BP'+Date.now().toString().slice(-8);
     flash('⚠ 本機資料庫連線失敗，已用暫存模式開啟（請重新整理或關閉其他分頁後再試）');
   }
 }
@@ -2452,9 +2669,18 @@ document.addEventListener('DOMContentLoaded',async()=>{
   $('pickFromDbBtn')?.addEventListener('click',openPicker);
   $('managePresetsBtn')?.addEventListener('click',openPresetManager);
   $('saveContractBtn')?.addEventListener('click',saveCon);
+  // Live preview while editing contract content (does NOT save — save still
+  // requires pressing 儲存範本). Debounced so typing stays smooth.
+  let cedTimer=null;
+  const liveCed=()=>{clearTimeout(cedTimer);cedTimer=setTimeout(()=>sR(),250)};
+  $('contractEd')?.addEventListener('input',liveCed);
+  $('contractEdEn')?.addEventListener('input',liveCed);
   $('newContractBtn')?.addEventListener('click',newCon);
   $('delContractBtn')?.addEventListener('click',delCon);
-  $('loadContractBtn')?.addEventListener('click',loadCon);
+  // Selecting a template from the list loads it into the editor immediately
+  $('contractList')?.addEventListener('change',e=>{
+    if(!e.target.value){newCon();}else{loadCon();}
+  });
   $('exportAllBtn')?.addEventListener('click',expAll);
   $('importFile')?.addEventListener('change',e=>impAll(e.target.files[0]));
 });
