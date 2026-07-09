@@ -300,12 +300,14 @@ textarea.fi{resize:vertical}
   font-size:6.5pt;color:#aaa;
 }
 .page-footer-co{font-size:6pt;color:#bbb}
+.page-footer-mid{flex:1;text-align:center;color:#bbb}
+.page-footer-wm{height:16pt;max-width:110pt;object-fit:contain;object-position:right}
 
 /* Page header */
 .ph{display:grid;grid-template-columns:1fr auto;align-items:start;padding-bottom:5pt;border-bottom:2pt solid var(--ink);margin-bottom:3.5mm}
 .ph-left{display:flex;align-items:center;gap:9pt}
-.ph-logo img{height:38pt;max-width:130pt;object-fit:contain}
-.ph-logo-box{width:38pt;height:38pt;background:var(--acc);border-radius:2pt;display:flex;align-items:center;justify-content:center}
+.ph-logo img{height:56pt;max-width:180pt;object-fit:contain}
+.ph-logo-box{width:52pt;height:52pt;background:var(--acc);border-radius:2pt;display:flex;align-items:center;justify-content:center}
 .ph-co h1{font-size:12.5pt;font-weight:700;letter-spacing:.03em;font-family:'Noto Serif TC',serif;line-height:1.2}
 .ph-co p{font-size:7pt;color:var(--ink-s);margin-top:2pt;line-height:1.7}
 .ph-right{text-align:right}
@@ -371,6 +373,17 @@ textarea.fi{resize:vertical}
 .tot-tbl td:first-child{color:var(--ink-s);text-align:right;padding-right:6pt}
 .tot-tbl td:last-child{text-align:right;font-weight:600}
 .tot-tbl .tr-tot td{font-size:11pt;font-weight:700;border-top:1.5pt solid var(--ink);border-bottom:none}
+/* Invoice seal on quotation, below the totals (bottom-right) */
+.bot-right{display:flex;flex-direction:column;align-items:flex-end}
+.q-invoice-seal{margin-top:8pt;text-align:center}
+.q-invoice-seal img{max-width:70pt;max-height:70pt;object-fit:contain}
+.q-invoice-lbl{font-size:6.5pt;color:var(--ink-m);margin-top:2pt}
+/* Contract dual-party info block */
+.cp-party-grid{display:grid;grid-template-columns:1fr 1fr;gap:16pt;margin-top:7mm}
+.cp-party{font-size:7.5pt;line-height:1.5}
+.cp-party-hd{font-weight:700;font-size:8.5pt;border-bottom:1pt solid var(--ink);padding-bottom:2pt;margin-bottom:4pt}
+.cp-party-row{display:flex;gap:5pt;padding:1.5pt 0}
+.cp-party-row span{color:var(--ink-m);min-width:44pt;flex-shrink:0}
 .sig-row{display:flex;align-items:flex-end;justify-content:space-between;margin-top:6mm}
 .sig-box{padding:6pt 0 22pt;font-size:8.5pt;color:var(--ink);min-width:140pt;font-weight:600}
 .stamp-area{display:flex;align-items:center;gap:12pt}
@@ -462,11 +475,11 @@ textarea.fi{resize:vertical}
         <div class="st">公司資訊</div>
         <div class="fr"><label>公司名稱</label><input type="text" class="fi" id="companyName" value="紅磚影像製作有限公司"></div>
         <div class="fr"><label>公司名稱（英文·給外國客戶）</label><input type="text" class="fi" id="companyNameEn" value="Bricks Production, Ltd."></div>
-        <div class="fr"><label>地址 / 電話 / Email（多行）</label><textarea class="fi" id="companyInfo" rows="3">新北市新店區北新路一段271巷47號1樓
-+886 963-632-962　　93711363
+        <div class="fr"><label>地址 / 電話 / Email（多行）</label><textarea class="fi" id="companyInfo" rows="3">新北市新店區北新路一段271巷45號1樓
++886 2-6603 9394　　93711363
 service@bricksproduction.com</textarea></div>
-        <div class="fr"><label>地址 / 電話 / Email（英文·給外國客戶）</label><textarea class="fi" id="companyInfoEn" rows="3">1F., No. 47, Ln. 271, Sec. 1, Beixin Rd., Xindian Dist., New Taipei City 231046, Taiwan (R.O.C.)
-+886 963-632-962　　93711363
+        <div class="fr"><label>地址 / 電話 / Email（英文·給外國客戶）</label><textarea class="fi" id="companyInfoEn" rows="3">1F., No. 45, Ln. 271, Sec. 1, Beixin Rd., Xindian Dist., New Taipei City 231046, Taiwan (R.O.C.)
++886 2-6603 9394　　93711363
 service@bricksproduction.com</textarea></div>
       </div>
       <div class="fs">
@@ -649,6 +662,13 @@ Phone Number: +886963632962</textarea></div>
             <div class="ba-preview" id="prev-signature"><span class="ba-placeholder">未上傳</span></div>
             <input type="file" id="up-signature" accept="image/png,image/svg+xml">
             <button class="btn bd sm" style="margin-top:5px;width:100%" onclick="clearAsset('signature')">移除</button>
+          </div>
+          <div class="ba-card">
+            <h4>🔤 公司標準字（橫式 Logo）</h4>
+            <div class="ba-preview" id="prev-wordmark"><span class="ba-placeholder">未上傳</span></div>
+            <input type="file" id="up-wordmark" accept="image/png,image/svg+xml,image/jpeg">
+            <button class="btn bd sm" style="margin-top:5px;width:100%" onclick="clearAsset('wordmark')">移除</button>
+            <p class="tip" style="margin-top:4px;font-size:10px">上傳後顯示於每頁右下角</p>
           </div>
         </div>
         <p class="tip">注意：品牌素材儲存在此瀏覽器，清除瀏覽器資料會遺失，建議定期用「設定」頁籤備份資料。</p>
@@ -991,7 +1011,7 @@ const DS=[
 ];
 
 /* ========== STATE ========== */
-const A={logo:null,stamp1:null,stamp2:null,invoice:null,signature:null}; // brand assets
+const A={logo:null,stamp1:null,stamp2:null,invoice:null,signature:null,wordmark:null}; // brand assets
 const S={secs:[],qid:null,cid:null,contractId:null};
 
 /* ========== DB — localStorage-based (Safari file:// compatible) ========== */
@@ -1133,7 +1153,7 @@ const I18N={
   en:{
     tab_edit:'Basic Info',tab_items:'Quote Items',tab_mdb:'Item Database',tab_brand:'Brand Assets',tab_saved:'Saved',tab_settings:'Settings',
     pdf_filename:'PDF Filename',new_quote:'+ New Quote',export_pdf:'🖨 Export PDF',export_contract:'📄 Export Contract',
-    pdf_title:'QUOTATION',pdf_contract_title:'Video Production Service Agreement',
+    pdf_title:'QUOTATION',pdf_contract_title:'Production Service Agreement',
     pdf_date:'Date',pdf_valid:'Valid Until',pdf_staff:'Contact',pdf_page:'Page',
     pdf_client:'Client',pdf_contact:'Attn',pdf_phone:'Phone',pdf_vat:'Tax ID',pdf_addr:'Address',pdf_project:'Project',
     pdf_no:'No.',pdf_item:'Item / Spec',pdf_desc:'Description',pdf_qty:'Qty',pdf_unit:'Unit',
@@ -1186,7 +1206,7 @@ function updateAssetPreview(key){
   p.innerHTML=A[key]?`<img src="${A[key]}" alt="">`:`<span class="ba-placeholder">未上傳</span>`;
 }
 async function loadAllAssets(){
-  for(const key of['logo','stamp1','stamp2','invoice','signature']){
+  for(const key of['logo','stamp1','stamp2','invoice','signature','wordmark']){
     const r=await dbG('assets',key);
     A[key]=r?.url||null;
     updateAssetPreview(key);
@@ -1407,7 +1427,7 @@ function applyData(d){
     }
   }
   S.secs=(d.secs||DS).map(s=>({...s,items:(s.items||[]).map(it=>({...it}))}));
-  if(d.assets){Object.assign(A,d.assets);['logo','stamp1','stamp2','invoice','signature'].forEach(k=>updateAssetPreview(k))}
+  if(d.assets){Object.assign(A,d.assets);['logo','stamp1','stamp2','invoice','signature','wordmark'].forEach(k=>updateAssetPreview(k))}
   S.cid=d.cid||null;
   if(d.pc){Object.entries(d.pc).forEach(([k,v])=>{const el=$('pc-'+k);if(el)el.checked=v})}
   rFn();rEditor();sR();
@@ -1590,21 +1610,29 @@ function rQDoc(d,t){
     <div>${d.schedule?`<h4>${T('pdf_schedule')}</h4><p>${esc(d.schedule).replace(/\n/g,'<br>')}</p><div style="height:4pt"></div>`:''}<h4>${T('pdf_payment')}</h4><p>${esc(LANG==='en'?(d.paymentTermsEn||d.paymentTerms||''):(d.paymentTerms||'')).replace(/\n/g,'<br>')}</p>
     <h4 style="margin-top:5pt">${T('pdf_bank')}</h4><p><strong>${esc(bankText).replace(/\n/g,'<br>')}</strong></p></div>`:'<div></div>';
   const sigHtml=d.pc.sig?`<div class="sig-row"><div class="sig-box">${T('pdf_sig_client')}</div></div>`:'';
+  // Invoice seal on the quotation, bottom-right under the totals
+  const invoiceSealHtml=A.invoice
+    ?`<div class="q-invoice-seal"><img src="${A.invoice}" alt="${T('pdf_stamp3')}"><div class="q-invoice-lbl">${T('pdf_stamp3')}</div></div>`
+    :'';
   const botHtml=`<div class="bot">
     <div class="bot-grid">
       ${payHtml}
-      <table class="tot-tbl">
-        <tr><td>${T('pdf_sum')}｜</td><td>${c}&nbsp;${fmt(t.sub)}</td></tr>
-        ${taxR}${disc}
-        <tr class="tr-tot"><td>${T('pdf_total')}｜</td><td>${c}&nbsp;${fmt(t.total)}</td></tr>
-      </table>
+      <div class="bot-right">
+        <table class="tot-tbl">
+          <tr><td>${T('pdf_sum')}｜</td><td>${c}&nbsp;${fmt(t.sub)}</td></tr>
+          ${taxR}${disc}
+          <tr class="tr-tot"><td>${T('pdf_total')}｜</td><td>${c}&nbsp;${fmt(t.total)}</td></tr>
+        </table>
+        ${invoiceSealHtml}
+      </div>
     </div>
     ${sigHtml}
   </div>`;
 
   const pgFooter=`<div class="page-footer">
     <span class="page-footer-co">${esc(LANG==='en'?(d.companyNameEn||'Bricks Production, Ltd.'):(d.companyName||'紅磚影像製作有限公司'))}</span>
-    <span>${esc(d.quoteNo||'')}</span>
+    <span class="page-footer-mid">${esc(d.quoteNo||'')}</span>
+    ${A.wordmark?`<img src="${A.wordmark}" alt="wordmark" class="page-footer-wm">`:'<span></span>'}
   </div>`;
 
   return`<div class="page">
@@ -1670,7 +1698,6 @@ function rCPage(d,pn,total){
   const stampSlots=[
     d.pc.stamp1?mkSlot(A.stamp1,T('pdf_stamp1')):'',
     d.pc.stamp2?mkSlot(A.stamp2,T('pdf_stamp2')):'',
-    mkSlot(A.invoice,T('pdf_stamp3')),
   ].filter(Boolean).join('');
   const sigHtml=d.pc.sig?`<div class="cp-sig-grid">
         <div class="cp-sig-cell">
@@ -1684,9 +1711,35 @@ function rCPage(d,pn,total){
           <div class="cp-sig-lbl">${T('pdf_sig_b')}</div>
         </div>
       </div>`:'';
+  // Dual-party company info block — makes the contract a standalone legal doc.
+  const EN=LANG==='en';
+  const coName=EN?(d.companyNameEn||'Bricks Production, Ltd.'):(d.companyName||'紅磚影像製作有限公司');
+  // Party B (Bricks) fixed details
+  const bTaxId='93711363';
+  const bAddr=EN?'1F., No. 45, Ln. 271, Sec. 1, Beixin Rd., Xindian Dist., New Taipei City 231046, Taiwan (R.O.C.)':'新北市新店區北新路一段271巷45號1樓';
+  const bPhone='+886 2-6603 9394';
+  const L_co=EN?'Company':'公司',L_tax=EN?'Tax ID':'統一編號',L_addr=EN?'Address':'地址',L_tel=EN?'Tel':'電話';
+  const L_partyA=EN?'Party A (Client)':'甲方（委託方）',L_partyB=EN?'Party B (Contractor)':'乙方（承接方）';
+  const partyInfo=`<div class="cp-party-grid">
+    <div class="cp-party">
+      <div class="cp-party-hd">${L_partyA}</div>
+      <div class="cp-party-row"><span>${L_co}</span>${esc(d.customerName||'')}</div>
+      <div class="cp-party-row"><span>${L_tax}</span>${esc(d.customerVat||'')}</div>
+      <div class="cp-party-row"><span>${L_addr}</span>${esc(d.customerAddress||'')}</div>
+      <div class="cp-party-row"><span>${L_tel}</span>${esc(d.customerPhone||'')}</div>
+    </div>
+    <div class="cp-party">
+      <div class="cp-party-hd">${L_partyB}</div>
+      <div class="cp-party-row"><span>${L_co}</span>${esc(coName)}</div>
+      <div class="cp-party-row"><span>${L_tax}</span>${bTaxId}</div>
+      <div class="cp-party-row"><span>${L_addr}</span>${esc(bAddr)}</div>
+      <div class="cp-party-row"><span>${L_tel}</span>${bPhone}</div>
+    </div>
+  </div>`;
   const cpFooter=`<div class="page-footer">
     <span class="page-footer-co">${esc(LANG==='en'?(d.companyNameEn||'Bricks Production, Ltd.'):(d.companyName||'紅磚影像製作有限公司'))}</span>
-    <span>${esc(d.quoteNo||'')}</span>
+    <span class="page-footer-mid">${esc(d.quoteNo||'')}</span>
+    ${A.wordmark?`<img src="${A.wordmark}" alt="wordmark" class="page-footer-wm">`:'<span></span>'}
   </div>`;
   // Compact contract header — just the title, not the full company brandMark
   // (the quotation already carries the company header; no need to repeat it)
@@ -1699,14 +1752,15 @@ function rCPage(d,pn,total){
     <div class="cp-content">${body}</div>
     <div class="cp-bot">
       ${sigHtml}
-      <div class="cp-stamp-row">
+      ${partyInfo}
+      ${stampSlots?`<div class="cp-stamp-row">
         <div>
-          <div class="cp-co-name">${esc(LANG==='en'?(d.companyNameEn||'Bricks Production, Ltd.'):(d.companyName||'紅磚影像製作有限公司'))}</div>
+          <div class="cp-co-name">${esc(coName)}</div>
           <div class="cp-stamp-slots">
             ${stampSlots}
           </div>
         </div>
-      </div>
+      </div>`:''}
     </div>
     ${cpFooter}
   </div>`;
@@ -2637,7 +2691,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
   });
 
   // Brand asset uploads
-  const assetMap=[['up-logo','logo'],['up-stamp1','stamp1'],['up-stamp2','stamp2'],['up-invoice','invoice'],['up-signature','signature']];
+  const assetMap=[['up-logo','logo'],['up-stamp1','stamp1'],['up-stamp2','stamp2'],['up-invoice','invoice'],['up-signature','signature'],['up-wordmark','wordmark']];
   assetMap.forEach(([inputId,key])=>{
     $(inputId)?.addEventListener('change',async e=>{
       const f=e.target.files[0];if(!f)return;
