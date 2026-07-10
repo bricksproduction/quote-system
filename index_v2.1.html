@@ -791,7 +791,7 @@ const DC=`<p>委託方（甲方）：<strong>{{客戶名稱}}</strong><br>承接
 
 // English default contract — parallel translation of the nine clauses above.
 const DC_EN=`<p>Client (Party A): <strong>{{客戶名稱}}</strong><br>Contractor (Party B): <strong>{{公司名稱}}</strong><br>Quotation No.: {{報價單號}}　　Date: {{報價日期}}</p>
-<h3>1. Scope of Project</h3><p>Party A engages Party B to carry out the "{{專案名稱}}" video production project. Party B provides production services per the items listed in this quotation. Any addition or change to the scope must be confirmed in writing and separately quoted.</p>
+<h3>1. Scope of Project</h3><p>Party A engages Party B to carry out the {{專案名稱}} production project. Party B provides production services per the items listed in this quotation. Any addition or change to the scope must be confirmed in writing and separately quoted.</p>
 <h3>2. Creative Development</h3><p>Creative development takes approximately one week to one month, including advertising concept discussion, theme planning, script writing, and storyboard reference. Special requirements may incur additional charges. Deliverables: one written script and one frame-by-frame reference storyboard.</p>
 <h3>3. Production</h3><p>Production planning begins after the client approves the script. Shooting proceeds after client confirmation, based on the final Pre-Production Meeting (PPM) materials. Footage content cannot be altered after shooting; any reshoot or additional shooting days not caused by force majeure will be quoted separately.</p>
 <h3>4. Post-Production</h3><p>Post-production takes approximately 14 working days, including ingest, file confirmation, edit approval, color grading, audio mixing, and export. The first version is delivered within two weeks after shooting. After the first version, unlimited revisions are allowed within the delivery period. Export format: Rec.709, ProRes422HQ/mov.</p>
@@ -1767,20 +1767,21 @@ function rCPage(d,pn,total){
 }
 
 function applyV(html,d){
+  // Company name follows the current language
+  const coName=LANG==='en'?(d.companyNameEn||'Bricks Production, Ltd.'):(d.companyName||'紅磚影像製作有限公司');
   let out=html
-    .replace(/\{\{公司名稱\}\}/g,esc(d.companyName||''))
+    .replace(/\{\{公司名稱\}\}/g,esc(coName))
     .replace(/\{\{客戶名稱\}\}/g,esc(d.customerName||''))
     .replace(/\{\{專案名稱\}\}/g,esc(d.projectName||d.customerName||''))
     .replace(/\{\{報價單號\}\}/g,esc(d.quoteNo||''))
     .replace(/\{\{報價日期\}\}/g,fd(d.quoteDate||''))
     .replace(/\{\{有效日期\}\}/g,fd(d.validUntil||''));
   // Clean up empty elements left behind by the contenteditable editor.
-  // Empty <h3> tags render as blank dark bars; empty <p> add stray gaps.
   out=out
-    .replace(/<h[1-6]>(\s|&nbsp;|<br\s*\/?>)*<\/h[1-6]>/gi,'')   // empty headings
-    .replace(/<p>(\s|&nbsp;|<br\s*\/?>)*<\/p>/gi,'')             // empty paragraphs
-    .replace(/<div>(\s|&nbsp;|<br\s*\/?>)*<\/div>/gi,'')         // empty divs
-    .replace(/(<br\s*\/?>\s*){3,}/gi,'<br><br>');                // collapse 3+ line breaks
+    .replace(/<h[1-6]>(\s|&nbsp;|<br\s*\/?>)*<\/h[1-6]>/gi,'')
+    .replace(/<p>(\s|&nbsp;|<br\s*\/?>)*<\/p>/gi,'')
+    .replace(/<div>(\s|&nbsp;|<br\s*\/?>)*<\/div>/gi,'')
+    .replace(/(<br\s*\/?>\s*){3,}/gi,'<br><br>');
   return out;
 }
 
