@@ -376,7 +376,7 @@ textarea.fi{resize:vertical}
 /* Invoice seal on quotation, below the totals (bottom-right) */
 .bot-right{display:flex;flex-direction:column;align-items:flex-end}
 .q-invoice-seal{margin-top:8pt;text-align:center}
-.q-invoice-seal img{max-width:70pt;max-height:70pt;object-fit:contain}
+.q-invoice-seal img{max-width:140pt;max-height:140pt;object-fit:contain}
 .q-invoice-lbl{font-size:6.5pt;color:var(--ink-m);margin-top:2pt}
 /* Contract dual-party info block */
 .cp-party-grid{display:grid;grid-template-columns:1fr 1fr;gap:16pt;margin-top:7mm}
@@ -412,11 +412,13 @@ textarea.fi{resize:vertical}
 .cp-sig-line{border-top:.6pt solid #b4b0a8}
 .cp-sig-lbl{font-size:7pt;color:var(--ink-m);padding-top:3pt}
 .cp-sig-img{max-height:28pt;max-width:120pt;object-fit:contain}
-.cp-stamp-row{display:flex;align-items:flex-end;gap:16pt;margin-top:6mm}
-.cp-co-name{font-size:8.5pt;font-weight:700;margin-bottom:4pt}
-.cp-stamp-slots{display:flex;gap:10pt}
+.cp-stamp-row{display:flex;align-items:flex-end;justify-content:flex-end;gap:16pt;margin-top:6mm}
+.cp-co-name{font-size:8.5pt;font-weight:700;margin-bottom:4pt;text-align:right}
+.cp-stamp-slots{display:flex;gap:16pt;justify-content:flex-end;align-items:flex-end}
 .cp-stamp-slot{display:flex;flex-direction:column;align-items:center;gap:3pt}
-.cp-stamp-slot img{max-width:50pt;max-height:50pt;object-fit:contain}
+.cp-stamp-slot img{object-fit:contain}
+.stamp-company img{max-width:130pt;max-height:130pt}
+.stamp-rep img{max-width:90pt;max-height:90pt}
 .cp-stamp-label{font-size:7pt;color:var(--ink-m)}
 .cp-stamp-placeholder{width:50pt;height:50pt;border:.6pt dashed #bbb;border-radius:2pt;display:flex;align-items:center;justify-content:center;font-size:6.5pt;color:#ccc}
 
@@ -1692,12 +1694,12 @@ function rCPage(d,pn,total){
     tplBody=LANG==='en'?DC_EN:DC;
   }
   const body=applyV(tplBody,d);
-  const mkSlot=(url,lbl)=>url
-    ?`<div class="cp-stamp-slot"><img src="${url}" alt="${lbl}"><span class="cp-stamp-label">${lbl}</span></div>`
-    :`<div class="cp-stamp-slot cp-stamp-empty"><span class="cp-stamp-label">${lbl}</span></div>`;
+  const mkSlot=(url,lbl,cls='')=>url
+    ?`<div class="cp-stamp-slot ${cls}"><img src="${url}" alt="${lbl}"><span class="cp-stamp-label">${lbl}</span></div>`
+    :`<div class="cp-stamp-slot cp-stamp-empty ${cls}"><span class="cp-stamp-label">${lbl}</span></div>`;
   const stampSlots=[
-    d.pc.stamp1?mkSlot(A.stamp1,T('pdf_stamp1')):'',
-    d.pc.stamp2?mkSlot(A.stamp2,T('pdf_stamp2')):'',
+    d.pc.stamp1?mkSlot(A.stamp1,T('pdf_stamp1'),'stamp-company'):'',
+    d.pc.stamp2?mkSlot(A.stamp2,T('pdf_stamp2'),'stamp-rep'):'',
   ].filter(Boolean).join('');
   const sigHtml=d.pc.sig?`<div class="cp-sig-grid">
         <div class="cp-sig-cell">
