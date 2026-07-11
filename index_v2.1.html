@@ -192,8 +192,11 @@ textarea.fi{resize:vertical}
 .mdb-cat-group{margin-bottom:10px}
 .mdb-cat-hd{display:flex;align-items:center;gap:6px;padding:6px 9px;background:#2c2926;color:#fff;border-radius:4px 4px 0 0;font-size:12px;font-weight:700}
 .mdb-cat-count{margin-left:auto;font-size:10px;color:#aaa;font-weight:400}
-.mdb-item{display:grid;grid-template-columns:24px 1fr auto;gap:6px;align-items:start;padding:7px 9px;border:1px solid var(--brd);border-top:none;background:var(--paper)}
+.mdb-item{display:grid;grid-template-columns:18px 24px 1fr auto;gap:6px;align-items:start;padding:7px 9px;border:1px solid var(--brd);border-top:none;background:var(--paper)}
 .mdb-item:hover{background:#faf8f4}
+.mdb-item.dragging{opacity:.35}
+.mdb-drag-handle{width:18px;height:22px;display:flex;align-items:center;justify-content:center;cursor:grab;color:var(--ink-m);font-size:13px;user-select:none;touch-action:none}
+.mdb-drag-handle:active{cursor:grabbing}
 .mdb-fav-btn{width:22px;height:22px;border:none;background:none;cursor:pointer;font-size:14px;color:#ddd;display:flex;align-items:center;justify-content:center}
 .mdb-fav-btn.on{color:#f59e0b}
 .mdb-item-body{min-width:0}
@@ -1998,6 +2001,7 @@ async function rMdbList(){
   const q=($('mdbSearch')?.value||'').trim().toLowerCase();
   const catFilter=$('mdbCatFilter')?.value||'';
   const favOnly=$('mdbFavOnly')?.checked||false;
+  const dragSafe=!q&&!favOnly;
 
   let items=MDB.items.slice();
   if(catFilter)items=items.filter(i=>i.cat===catFilter);
@@ -2022,7 +2026,7 @@ async function rMdbList(){
   w.innerHTML=orderedCatKeys.map(catKey=>{
     const catLabel=MDB.cats.find(c=>c.id===catKey)?.label||catKey;
     const list=groups[catKey].sort((a,b)=>(a.order||0)-(b.order||0)||a.id.localeCompare(b.id));
-    const rows=list.map(it=>mdbItemRowHtml(it)).join('');
+    const rows=list.map(it=>mdbItemRowHtml(it,dragSafe)).join('');
     return`<div class="mdb-cat-group">
       <div class="mdb-cat-hd">${esc(catLabel)}<span class="mdb-cat-count">${list.length} 項</span></div>
       ${rows}
@@ -2042,11 +2046,64 @@ async function rMdbList(){
   w.querySelectorAll('.mdb-save-btn').forEach(b=>b.addEventListener('click',e=>{
     e.stopPropagation();saveMdbItemEdit(b.dataset.id);
   }));
+
+  // drag-to-reorder (only when the list isn't filtered by search/收藏, so a
+  // partial view can't scramble the order of hidden items in the same category)
+  if(dragSafe){
+    w.querySelectorAll('.mdb-item').forEach(el=>{
+      el.addEventListener('dragstart',e=>{
+        el.classList.add('dragging');
+        e.dataTransfer.effectAllowed='move';
+        e.dataTransfer.setData('text/plain',el.dataset.id);
+      });
+      el.addEventListener('dragend',()=>el.classList.remove('dragging'));
+    });
+    w.querySelectorAll('.mdb-cat-group').forEach(group=>{
+      group.addEventListener('dragover',e=>{
+        e.preventDefault();
+        const dragging=group.querySelector('.mdb-item.dragging');
+        if(!dragging)return;
+        const after=mdbDragAfterEl(group,e.clientY);
+        if(after==null)group.appendChild(dragging);
+        else group.insertBefore(dragging,after);
+      });
+      group.addEventListener('drop',e=>{
+        e.preventDefault();
+        persistMdbOrder(group);
+      });
+    });
+  }
 }
 
-function mdbItemRowHtml(it){
+function mdbDragAfterEl(container,y){
+  const els=[...container.querySelectorAll('.mdb-item:not(.dragging)')];
+  return els.reduce((closest,child)=>{
+    const box=child.getBoundingClientRect();
+    const offset=y-box.top-box.height/2;
+    if(offset<0&&offset>closest.offset)return{offset,element:child};
+    return closest;
+  },{offset:-Infinity,element:null}).element;
+}
+
+async function persistMdbOrder(group){
+  const ids=[...group.querySelectorAll('.mdb-item')].map(el=>el.dataset.id);
+  let changed=false;
+  for(let i=0;i<ids.length;i++){
+    const it=MDB.items.find(x=>x.id===ids[i]);
+    const newOrder=(i+1)*10;
+    if(it&&it.order!==newOrder){
+      it.order=newOrder;
+      await dbP('master_items',it);
+      changed=true;
+    }
+  }
+  if(changed)flash('順序已更新');
+}
+
+function mdbItemRowHtml(it,dragSafe){
   const editing=MDB.editingId===it.id;
-  return`<div class="mdb-item${it.active===false?' inactive':''}" data-id="${esc(it.id)}">
+  return`<div class="mdb-item${it.active===false?' inactive':''}" data-id="${esc(it.id)}"${dragSafe?' draggable="true"':''}>
+    <span class="mdb-drag-handle"${dragSafe?' title="按住拖曳，調整順序"':' style="opacity:.25;cursor:default" title="清除搜尋／收藏篩選後才能拖曳排序"'}>⠿</span>
     <button class="mdb-fav-btn${it.fav?' on':''}" data-id="${esc(it.id)}" title="收藏常用項目">${it.fav?'★':'☆'}</button>
     <div class="mdb-item-body">
       <div class="mdb-item-top">
@@ -2131,13 +2188,17 @@ async function delMdbItem(id){
 }
 
 async function addMdbItem(){
-  const catKey=$('mdbCatFilter')?.value||MDB.cats[0]?.id||'前期製作';
+  const catKey=$('mdbCatFilter')?.value||'';
+  if(!catKey){
+    alert('請先在上方「分類」下拉選單選擇要加入的分類，新項目才會加到正確的地方。');
+    return;
+  }
   const newId=mdbNextId(catKey);
   const newItem={id:newId,cat:catKey,sub:'',name:'新項目',spec:'',desc:'',unit:'式',price:0,cost:0,fav:false,active:true,order:999};
   await dbP('master_items',newItem);
   MDB.editingId=newId;
   await rMdbList();
-  flash(`已新增項目 ${newId}，請編輯內容`);
+  flash(`已新增項目 ${newId}，請編輯內容，再拖曳左側的「⠿」把手排到你要的位置`);
   // scroll to it
   setTimeout(()=>{
     const el=document.querySelector(`.mdb-item[data-id="${newId}"]`);
@@ -2307,19 +2368,149 @@ async function newPreset(){
 }
 
 async function editPreset(id){
+  await loadMasterDb();
   const presets=await loadPresets();
   const p=presets.find(x=>x.id===id);if(!p)return;
-  const name=prompt('修改組合名稱：',p.name);if(name===null)return;
-  const icon=prompt('修改 Emoji 圖示：',p.icon||'📋');if(icon===null)return;
-  const desc=prompt('修改描述：',p.desc||'');if(desc===null)return;
-  await dbP('presets',{...p,name:name.trim(),icon:icon.trim()||'📋',desc:desc.trim()});
+
+  PRESET_EDIT.id=id;
+  PRESET_EDIT.checked=new Set();
+  (p.sections||[]).forEach(s=>(s.itemIds||[]).forEach(iid=>PRESET_EDIT.checked.add(iid)));
+
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay';
+  overlay.id='presetEditOverlay';
+  overlay.innerHTML=`
+    <div class="modal-box">
+      <div class="modal-hd">
+        <h3>✏️ 編輯預設組合</h3>
+        <button class="modal-close" id="peCloseBtn">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="mdb-edit-grid" style="margin-bottom:10px">
+          <div class="fr"><label>組合名稱</label><input type="text" class="fi" id="peName" value="${esc(p.name)}"></div>
+          <div class="fr"><label>Emoji 圖示</label><input type="text" class="fi" id="peIcon" value="${esc(p.icon||'📋')}"></div>
+          <div class="fr" style="grid-column:1/-1"><label>描述</label><input type="text" class="fi" id="peDesc" value="${esc(p.desc||'')}"></div>
+        </div>
+        <p class="tip" style="margin-bottom:6px">勾選套用這個組合時要帶入的項目（可跨分類複選）：</p>
+        <div class="modal-toolbar">
+          <input type="search" id="peSearch" placeholder="搜尋項目名稱、說明…">
+          <select id="peCatFilter">
+            <option value="">全部分類</option>
+            ${MDB.cats.map(c=>`<option value="${esc(c.id)}">${esc(c.label)}</option>`).join('')}
+          </select>
+        </div>
+        <div id="peList"></div>
+      </div>
+      <div class="modal-ft">
+        <div class="modal-ft-info" id="peSelCount"></div>
+        <button class="btn bg" id="peCancelBtn">取消</button>
+        <button class="btn ba" id="peSaveBtn">💾 儲存組合</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  rPresetEditList();
+  $('peSearch').addEventListener('input',()=>rPresetEditList());
+  $('peCatFilter').addEventListener('change',()=>rPresetEditList());
+  $('peCloseBtn').addEventListener('click',closePresetEdit);
+  $('peCancelBtn').addEventListener('click',closePresetEdit);
+  $('peSaveBtn').addEventListener('click',savePresetEdit);
+  overlay.addEventListener('click',e=>{if(e.target===overlay)closePresetEdit()});
+}
+
+function rPresetEditList(){
+  const w=$('peList');if(!w)return;
+  const q=($('peSearch')?.value||'').trim().toLowerCase();
+  const catFilter=$('peCatFilter')?.value||'';
+
+  let items=MDB.items.filter(i=>i.active!==false);
+  if(catFilter)items=items.filter(i=>i.cat===catFilter);
+  if(q)items=items.filter(i=>
+    (i.name||'').toLowerCase().includes(q)||
+    (i.desc||'').toLowerCase().includes(q)||
+    (i.sub||'').toLowerCase().includes(q)
+  );
+
+  if(!items.length){w.innerHTML='<div class="el">沒有符合條件的項目</div>';updatePresetEditSelCount();return}
+
+  const catOrder=MDB.cats.map(c=>c.id);
+  const groups={};
+  items.forEach(i=>{(groups[i.cat]=groups[i.cat]||[]).push(i)});
+  const orderedKeys=[...catOrder.filter(c=>groups[c]),...Object.keys(groups).filter(c=>!catOrder.includes(c))];
+
+  w.innerHTML=orderedKeys.map(catKey=>{
+    const label=MDB.cats.find(c=>c.id===catKey)?.label||catKey;
+    const list=groups[catKey].sort((a,b)=>(a.order||0)-(b.order||0)||a.id.localeCompare(b.id));
+    const rows=list.map(it=>{
+      const checked=PRESET_EDIT.checked.has(it.id);
+      return`<div class="picker-item${checked?' checked':''}" data-id="${esc(it.id)}">
+        <input type="checkbox" ${checked?'checked':''} data-id="${esc(it.id)}">
+        <div class="picker-item-info">
+          <div class="picker-item-top">
+            <span class="picker-item-name">${esc(it.name)}</span>
+            <span class="picker-item-spec">${esc(it.spec||'')}</span>
+          </div>
+          <div class="picker-item-desc">${esc(it.desc||'')}</div>
+        </div>
+        <div class="picker-item-price">$${fmt(it.cost||0)}</div>
+      </div>`;
+    }).join('');
+    return`<div class="picker-cat-hd">${esc(label)}</div>${rows}`;
+  }).join('');
+
+  w.querySelectorAll('.picker-item').forEach(row=>{
+    row.addEventListener('click',e=>{
+      if(e.target.tagName==='INPUT')return;
+      const cb=row.querySelector('input[type=checkbox]');
+      cb.checked=!cb.checked;
+      cb.dispatchEvent(new Event('change',{bubbles:true}));
+    });
+    row.querySelector('input[type=checkbox]').addEventListener('change',e=>{
+      const id=e.target.dataset.id;
+      if(e.target.checked)PRESET_EDIT.checked.add(id);else PRESET_EDIT.checked.delete(id);
+      row.classList.toggle('checked',e.target.checked);
+      updatePresetEditSelCount();
+    });
+  });
+  updatePresetEditSelCount();
+}
+
+function updatePresetEditSelCount(){
+  const el=$('peSelCount');if(el)el.textContent=`已選 ${PRESET_EDIT.checked.size} 項`;
+}
+
+function closePresetEdit(){document.getElementById('presetEditOverlay')?.remove()}
+
+async function savePresetEdit(){
+  const presets=await loadPresets();
+  const p=presets.find(x=>x.id===PRESET_EDIT.id);if(!p)return;
+
+  const name=($('peName').value||'').trim()||p.name;
+  const icon=($('peIcon').value||'').trim()||'📋';
+  const desc=($('peDesc').value||'').trim();
+
+  const sections=MDB.cats.map(cat=>{
+    const list=MDB.items
+      .filter(i=>i.cat===cat.id&&PRESET_EDIT.checked.has(i.id))
+      .sort((a,b)=>(a.order||0)-(b.order||0)||a.id.localeCompare(b.id));
+    return{name:cat.label,itemIds:list.map(i=>i.id)};
+  }).filter(s=>s.itemIds.length>0);
+
+  if(!sections.length){
+    alert('請至少勾選一個項目，組合不能是空的。');
+    return;
+  }
+
+  await dbP('presets',{...p,name,icon,desc,sections});
+  closePresetEdit();
   await rPresetMgrList();
   await rPresetChips();
-  flash('已更新預設組合');
+  flash(`已更新預設組合：${icon} ${name}`);
 }
 
 /* ========== ITEM PICKER MODAL (報價單 ← 資料庫) ========== */
 const PICKER={checked:new Set()};
+const PRESET_EDIT={id:null,checked:new Set()};
 
 async function openPicker(presetSectionIdx){
   await loadMasterDb();
