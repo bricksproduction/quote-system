@@ -11,6 +11,18 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+/* ===== PASSWORD GATE ===== */
+.pw-gate{position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#2a2622,#3d3a36);display:flex;align-items:center;justify-content:center;font-family:'Noto Sans TC',sans-serif}
+.pw-box{background:#fff;border-radius:12px;padding:36px 32px;width:320px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,.4);text-align:center}
+.pw-logo{margin-bottom:14px}
+.pw-title{font-size:18px;font-weight:700;color:#1a1a1a;letter-spacing:.05em}
+.pw-sub{font-size:12px;color:#8a8a8a;margin:6px 0 20px}
+.pw-input{width:100%;padding:11px 14px;border:1.5px solid #ddd;border-radius:7px;font-size:15px;text-align:center;letter-spacing:.1em;box-sizing:border-box}
+.pw-input:focus{outline:none;border-color:#c0392b}
+.pw-btn{width:100%;margin-top:12px;padding:11px;background:#c0392b;color:#fff;border:none;border-radius:7px;font-size:15px;font-weight:600;cursor:pointer}
+.pw-btn:hover{background:#a93226}
+.pw-err{color:#c0392b;font-size:12px;margin-top:10px;min-height:16px}
+
 /* ===== ROOT ===== */
 :root{
   --ink:#1a1a1a;--ink-s:#4a4a4a;--ink-m:#8a8a8a;
@@ -453,7 +465,20 @@ textarea.fi{resize:vertical}
 </style>
 </head>
 <body>
-<div class="app">
+<!-- ============ PASSWORD GATE ============ -->
+<div id="pwGate" class="pw-gate">
+  <div class="pw-box">
+    <div class="pw-logo">
+      <svg width="34" height="34" viewBox="0 0 22 22" fill="none"><rect x="1" y="1" width="8" height="8" fill="#c0392b"/><rect x="13" y="1" width="8" height="8" fill="#c0392b"/><rect x="1" y="13" width="8" height="8" fill="#c0392b"/><rect x="13" y="13" width="8" height="8" fill="#c0392b"/></svg>
+    </div>
+    <div class="pw-title">BRICKS 報價系統</div>
+    <div class="pw-sub">請輸入密碼以進入</div>
+    <input type="password" id="pwInput" class="pw-input" placeholder="密碼" autocomplete="off">
+    <button id="pwBtn" class="pw-btn">進入系統</button>
+    <div class="pw-err" id="pwErr"></div>
+  </div>
+</div>
+<div class="app" id="appRoot" style="display:none">
 
 <!-- ============ ASIDE ============ -->
 <aside>
@@ -2630,6 +2655,32 @@ async function init(){
     flash('⚠ 本機資料庫連線失敗，已用暫存模式開啟（請重新整理或關閉其他分頁後再試）');
   }
 }
+
+/* ========== PASSWORD GATE ========== */
+const SITE_PW='asd123';
+function unlockApp(){
+  $('pwGate').style.display='none';
+  $('appRoot').style.display='grid';
+}
+function tryPw(){
+  const v=$('pwInput').value;
+  if(v===SITE_PW){
+    try{sessionStorage.setItem('bricksUnlocked','1')}catch(e){}
+    unlockApp();
+  }else{
+    $('pwErr').textContent='密碼錯誤，請再試一次';
+    $('pwInput').value='';
+    $('pwInput').focus();
+  }
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  try{
+    if(sessionStorage.getItem('bricksUnlocked')==='1'){unlockApp()}
+  }catch(e){}
+  $('pwBtn').addEventListener('click',tryPw);
+  $('pwInput').addEventListener('keydown',e=>{if(e.key==='Enter')tryPw()});
+  $('pwInput').focus();
+});
 
 document.addEventListener('DOMContentLoaded',async()=>{
   await init();
