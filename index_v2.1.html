@@ -1655,8 +1655,11 @@ function buildFlatRows(d){
       </tr>`;
       // Rough conservative weight: longer descriptions/names wrap onto
       // extra lines, so they should count for more than a plain 1-line row.
+      // English needs roughly twice the character count of Chinese to fill
+      // the same visual line width, so the threshold scales by language.
       const dLen=(iDesc||'').length,nLen=(iName||'').length;
-      const weight=1+Math.floor(dLen/35)+(nLen>10?1:0);
+      const wrapDiv=LANG==='en'?65:35,nameThresh=LANG==='en'?20:10;
+      const weight=1+Math.floor(dLen/wrapDiv)+(nLen>nameThresh?1:0);
       flat.push({type:'item',si,html,weight});
     });
     if(sec.footnote){
@@ -1681,7 +1684,7 @@ function buildFlatRows(d){
 // If a break falls in the middle of a section, the section header is
 // repeated with a "（續）/(cont'd)" suffix at the top of the new page.
 function paginateFlat(flat){
-  const FIRST=20,REST=26;
+  const FIRST=28,REST=38;
   const pages=[];let cur=[],cnt=0,openSi=null,openRow=null;
   flat.forEach(row=>{
     const lim=pages.length===0?FIRST:REST;
@@ -1778,6 +1781,14 @@ function rQDoc(d,t){
 
   const thQty=d.pc.qty?`<th class="cqt">${T('pdf_qty')}</th>`:'';
   const thUnit=d.pc.unit?`<th class="cut">${T('pdf_unit')}</th>`:'';
+  const cdsSub2=87+(d.pc.qty?20:0)+(d.pc.unit?34:0);
+  const colgroupHtml=`<colgroup>
+    <col style="width:19pt">
+    <col style="width:68pt">
+    ${d.pc.desc?`<col style="width:${515-cdsSub2}pt">`:''}
+    ${d.pc.qty?'<col style="width:20pt">':''}
+    ${d.pc.unit?'<col style="width:34pt">':''}
+  </colgroup>`;
   const theadHtml=`<thead><tr>
     <th class="cno">${T('pdf_no')}</th>
     <th class="cnm">${T('pdf_item')}</th>
@@ -1824,6 +1835,7 @@ function rQDoc(d,t){
     ${isFirst?bm:''}
     ${isFirst?custHtml:''}
     <table class="qt">
+      ${colgroupHtml}
       ${theadHtml}
       <tbody>${rowsHtml}</tbody>
     </table>
@@ -3025,9 +3037,13 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 document.addEventListener('DOMContentLoaded',async()=>{
-  await fsInit();
-  await fsWaitReady();
-  await init();
+  try{
+    await fsInit();
+    await fsWaitReady();
+    await init();
+  }catch(e){
+    console.error('啟動時發生錯誤（畫面仍會繼續載入，但資料可能不完整）：',e);
+  }
 
   // Tab buttons
   document.querySelectorAll('.tb').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
