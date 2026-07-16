@@ -308,8 +308,8 @@ textarea.fi{resize:vertical}
 .cp-head-meta{font-size:7.5pt;color:var(--ink-m);text-align:center;margin-top:4pt}
 /* Footer bleed space — sits at bottom of every page */
 .page-footer{
-  margin-top:8mm;
-  padding-top:4mm;
+  margin-top:4mm;
+  padding-top:3mm;
   border-top:.5pt solid #ddd;
   display:flex;align-items:center;justify-content:space-between;
   font-size:6.5pt;color:#aaa;
@@ -453,28 +453,22 @@ textarea.fi{resize:vertical}
     border:none!important;
     display:block!important;
   }
-  /* Quotation and contract each occupy their own page(s).
-     The contract ALWAYS starts on a fresh page. */
+  /* The contract ALWAYS starts on a fresh page. */
   .cp-page{page-break-before:always!important;break-before:page!important}
-  .qt-cont-page{page-break-before:always!important;break-before:page!important}
-  /* Never split a row or section header across pages */
+  /* Never split a row across pages. */
   .qt tr,.tot-tbl tr{page-break-inside:avoid!important;break-inside:avoid!important}
-  .sh{page-break-after:avoid!important;break-after:avoid!important}
+  /* A section header must never sit alone at the bottom: keep it with the
+     row that follows it. */
+  .qt tr.sh{page-break-after:avoid!important;break-after:avoid!important}
   .bot,.cp-bot{page-break-inside:avoid!important;break-inside:avoid!important}
-  /* Force deterministic column sizing when printing. Only .cds (the
-     description column) has no explicit width, so with table-layout:fixed
-     it always absorbs exactly the leftover space and the table fills the
-     full printable width. Without this, Safari's auto layout sometimes
-     sizes columns by content instead of stretching to 100%, leaving a
-     blank gap down the right side of the page. */
+  /* Fixed column widths via <colgroup> + table-layout:fixed → columns are
+     identical on every page and the table fills the full printable width. */
   .qt{table-layout:fixed;width:515.9pt!important}
-  /* Repeat the quote table column headers on every printed page.
-     Safari/WebKit has a long-standing bug: a repeating <thead> is
-     silently dropped on every page after the first when the table uses
-     border-collapse:collapse. Switching to separate (zero spacing) for
-     print only fixes the repeat without changing the on-screen look. */
-  .qt{border-collapse:separate!important;border-spacing:0!important}
+  /* Repeat the column header on every printed page. table-layout:fixed
+     already implies separated borders, so Safari's collapse+thead bug
+     (dropping the repeated header) does not apply here. */
   .qt thead{display:table-header-group}
+  .qt tfoot{display:table-row-group}
   @page{size:A4 portrait;margin:14mm 14mm 16mm 14mm}
 }
 @media(max-width:960px){.app{grid-template-columns:340px 1fr}}
@@ -1617,91 +1611,6 @@ async function printContractOnly(){
   },150);
 }
 
-// Flattens all section/item/footnote/subtotal rows into one ordered list,
-// each tagged with a rough "weight" (estimated line count) used to decide
-// where page breaks fall. Kept separate from HTML generation so paginateFlat
-// can operate on plain data.
-function buildFlatRows(d){
-  const c=d.currency||'$';
-  const baseCols=2+(d.pc.desc?1:0)+(d.pc.qty?1:0)+(d.pc.unit?1:0);
-  // .page's print width is a fixed 182mm (515.9pt) — use that directly
-  // instead of calc(100% - Npt). Percentage widths on a table cell inside
-  // a table-layout:fixed table don't reliably resolve against the table's
-  // actual rendered width across browsers, which was leaving the "說明"
-  // column short of the table's real right edge.
-  const cdsSub=87+(d.pc.qty?20:0)+(d.pc.unit?34:0);
-  const cdsStyle=` style="width:${515-cdsSub}pt"`;
-  const flat=[];
-  S.secs.forEach((sec,si)=>{
-    if(sec.items.length===0&&!sec.footnote)return;
-    const L=LTRS[si]||String(si+1),amt=secAmt(sec);
-    const secName=LANG==='en'?(EN_CATS[sec.name]||sec.name):sec.name;
-    const optNote=sec.optional
-      ? (LANG==='en'?'（Not included in the total price）':'（不計入總價）')
-      : '';
-    const shCls=sec.optional?'sh sh-opt':'sh';
-    const shHtml=cont=>`<tr class="${shCls}"><td colspan="${baseCols+1}" style="padding:3.5pt 7pt">${L}. ${esc(secName)}${cont?(LANG==='en'?' (cont\u2019d)':'（續）'):''}${optNote?`<span class="sh-opt-note">${optNote}</span>`:''}</td></tr>`;
-    flat.push({type:'sh',si,html:shHtml(false),contHtml:shHtml(true),weight:1.2});
-    sec.items.forEach((it,ii)=>{
-      const iName=itemDisp(it,'name');
-      const iDesc=itemDisp(it,'desc');
-      const td=(content,cls='')=>`<td${cls?' class="'+cls+'"':''}>${content}</td>`;
-      const html=`<tr>
-        ${td(`${L}${ii+1}`,'cno')}
-        ${td(esc(iName),'cnm')}
-        ${d.pc.desc?`<td class="cds"${cdsStyle}>${esc(iDesc).replace(/\n/g,'<br>')}</td>`:''}
-        ${d.pc.qty?td(String(it.qty||'1'),'cqt'):''}
-        ${d.pc.unit?td(esc(unitDisp(it.unit||'')),'cut'):''}
-      </tr>`;
-      // Rough conservative weight: longer descriptions/names wrap onto
-      // extra lines, so they should count for more than a plain 1-line row.
-      // English needs roughly twice the character count of Chinese to fill
-      // the same visual line width, so the threshold scales by language.
-      const dLen=(iDesc||'').length,nLen=(iName||'').length;
-      const wrapDiv=LANG==='en'?65:35,nameThresh=LANG==='en'?20:10;
-      const weight=1+Math.floor(dLen/wrapDiv)+(nLen>nameThresh?1:0);
-      flat.push({type:'item',si,html,weight});
-    });
-    if(sec.footnote){
-      flat.push({type:'fn',si,html:`<tr class="fn"><td colspan="${baseCols+1}">＊${esc(sec.footnote)}</td></tr>`,weight:1});
-    }
-    if(d.pc.secamt&&amt>0){
-      const subLabel=sec.optional
-        ? (LANG==='en'?'Optional Total':'加值小計')
-        : T('pdf_subtotal');
-      flat.push({type:'amt',si,html:`<tr class="pkg-amt-row${sec.optional?' pkg-amt-opt':''}"><td colspan="${baseCols+1}">
-        <span class="pkg-amt-label">${L}. ${esc(secName)}　${subLabel}</span>
-        <span class="pkg-amt-val">${c}&nbsp;${fmt(amt)}</span>
-      </td></tr>`,weight:1});
-    }
-  });
-  return{flat,cdsStyle,baseCols};
-}
-
-// Packs flat rows into page-chunks using conservative weight budgets, so a
-// single page-table is never tall enough to need its own internal browser
-// pagination (which is exactly the case Safari fails to repeat headers for).
-// If a break falls in the middle of a section, the section header is
-// repeated with a "（續）/(cont'd)" suffix at the top of the new page.
-function paginateFlat(flat){
-  const FIRST=28,REST=38;
-  const pages=[];let cur=[],cnt=0,openSi=null,openRow=null;
-  flat.forEach(row=>{
-    const lim=pages.length===0?FIRST:REST;
-    if(cnt>0&&cnt+row.weight>lim){
-      pages.push(cur);cur=[];cnt=0;
-      if(row.type==='item'&&openSi===row.si&&openRow){
-        cur.push(openRow);cnt+=openRow.weight;
-      }
-    }
-    if(row.type==='sh'){openSi=row.si;openRow={...row,html:row.contHtml};}
-    if(row.type==='fn'||row.type==='amt'){openSi=null;openRow=null;}
-    cur.push(row);cnt+=row.weight;
-  });
-  if(cur.length||pages.length===0)pages.push(cur);
-  return pages;
-}
-
 function brandMark(d){
   const logo=A.logo?`<img src="${A.logo}" alt="logo">`
     :`<div class="ph-logo-box"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="1" y="1" width="8" height="8" fill="white" opacity=".9"/><rect x="13" y="1" width="8" height="8" fill="white" opacity=".9"/><rect x="1" y="13" width="8" height="8" fill="white" opacity=".9"/><rect x="13" y="13" width="8" height="8" fill="white" opacity=".9"/></svg></div>`;
@@ -1729,37 +1638,37 @@ function brandMark(d){
 // Resolve an item's display name/desc for the current language.
 // Priority: item's own EN field > master DB (via _srcId) > Chinese fallback.
 function itemDisp(it,field){
-  // field is 'name' or 'desc'
   if(LANG!=='en') return it[field]||'';
-  const enField=field+'En'; // nameEn / descEn
-  // 1. Item's own English field
+  const enField=field+'En';
   if(it[enField]) return it[enField];
-  // 2. Master DB lookup by _srcId (items picked from DB carry this)
   if(it._srcId&&MDB&&MDB.items){
     const m=MDB.items.find(x=>x.id===it._srcId);
     if(m&&m[enField]) return m[enField];
   }
-  // 3. Legacy fallback: match by Chinese name against master DB.
-  //    Covers old quote items saved before _srcId existed.
   if(it.name&&MDB&&MDB.items){
     const m=MDB.items.find(x=>x.name===it.name);
     if(m&&m[enField]) return m[enField];
   }
-  // 4. Fallback to Chinese so nothing is blank
   return it[field]||'';
 }
 
-// rQDoc: renders the quote as one or more printed pages. Each page is its
-// own <div class="page"> containing its own complete <table class="qt">
-// (with its own <thead>) — rather than one giant table and hoping the
-// browser repeats its header across page breaks, which Safari does not
-// reliably do. The letterhead + customer info show once, on page 1 only;
-// the compact footer (company name + quote no.) repeats on every page.
+// ============================================================
+// rQDoc — SIMPLE & RELIABLE OUTPUT (rewritten)
+// ------------------------------------------------------------
+// One <div class="page"> containing ONE continuous <table class="qt">.
+// No manual pagination, no row-height guessing — the browser breaks
+// pages natively. Print-CSS guarantees (see @media print):
+//   • thead{display:table-header-group}  → column header repeats each page
+//   • tr{break-inside:avoid}             → a row never splits across pages
+//   • colgroup fixed widths              → columns identical on every page
+// Letterhead + customer info sit ABOVE the table (page 1 only). Totals /
+// payment / signature flow AFTER the table (naturally on the last page).
+// The footer is a running element repeated on every printed page.
+// ============================================================
 function rQDoc(d,t){
   const c=d.currency||'$';
-  const bm=brandMark(d).replace('__PG__','');  // page num handled by browser
+  const bm=brandMark(d);
 
-  // Customer info table — shown once at top
   const custHtml=`<table class="ct">
     <tr><td class="lbl">${T('pdf_client')}｜</td><td class="val" colspan="3">${esc(d.customerName||'')}</td></tr>
     <tr>
@@ -1776,27 +1685,62 @@ function rQDoc(d,t){
     </tr>
   </table>`;
 
-  const {flat,cdsStyle}=buildFlatRows(d);
-  const pages=paginateFlat(flat);
-
-  const thQty=d.pc.qty?`<th class="cqt">${T('pdf_qty')}</th>`:'';
-  const thUnit=d.pc.unit?`<th class="cut">${T('pdf_unit')}</th>`:'';
-  const cdsSub2=87+(d.pc.qty?20:0)+(d.pc.unit?34:0);
+  const baseCols=2+(d.pc.desc?1:0)+(d.pc.qty?1:0)+(d.pc.unit?1:0);
+  // Fixed pt widths (content width ≈ 515pt at 182mm). cds absorbs the rest.
+  const cdsSub=87+(d.pc.qty?20:0)+(d.pc.unit?34:0);
+  const cdsW=515-cdsSub;
   const colgroupHtml=`<colgroup>
     <col style="width:19pt">
     <col style="width:68pt">
-    ${d.pc.desc?`<col style="width:${515-cdsSub2}pt">`:''}
+    ${d.pc.desc?`<col style="width:${cdsW}pt">`:''}
     ${d.pc.qty?'<col style="width:20pt">':''}
     ${d.pc.unit?'<col style="width:34pt">':''}
   </colgroup>`;
   const theadHtml=`<thead><tr>
     <th class="cno">${T('pdf_no')}</th>
     <th class="cnm">${T('pdf_item')}</th>
-    ${d.pc.desc?`<th class="cds"${cdsStyle}>${T('pdf_desc')}</th>`:''}
-    ${thQty}${thUnit}
+    ${d.pc.desc?`<th class="cds">${T('pdf_desc')}</th>`:''}
+    ${d.pc.qty?`<th class="cqt">${T('pdf_qty')}</th>`:''}
+    ${d.pc.unit?`<th class="cut">${T('pdf_unit')}</th>`:''}
   </tr></thead>`;
 
-  // Totals + payment + signature — appear once, on the last page only
+  // Single continuous tbody: section headers + item rows inline.
+  let bodyRows='';
+  S.secs.forEach((sec,si)=>{
+    if(sec.items.length===0&&!sec.footnote)return;
+    const L=LTRS[si]||String(si+1),amt=secAmt(sec);
+    const secName=LANG==='en'?(EN_CATS[sec.name]||sec.name):sec.name;
+    const optNote=sec.optional
+      ? (LANG==='en'?'（Not included in the total price）':'（不計入總價）')
+      : '';
+    const shCls=sec.optional?'sh sh-opt':'sh';
+    bodyRows+=`<tr class="${shCls}"><td colspan="${baseCols+1}" style="padding:3.5pt 7pt">${L}. ${esc(secName)}${optNote?`<span class="sh-opt-note">${optNote}</span>`:''}</td></tr>`;
+    sec.items.forEach((it,ii)=>{
+      const iName=itemDisp(it,'name');
+      const iDesc=itemDisp(it,'desc');
+      const td=(content,cls='')=>`<td${cls?' class="'+cls+'"':''}>${content}</td>`;
+      bodyRows+=`<tr>
+        ${td(`${L}${ii+1}`,'cno')}
+        ${td(esc(iName),'cnm')}
+        ${d.pc.desc?td(esc(iDesc).replace(/\n/g,'<br>'),'cds'):''}
+        ${d.pc.qty?td(String(it.qty||'1'),'cqt'):''}
+        ${d.pc.unit?td(esc(unitDisp(it.unit||'')),'cut'):''}
+      </tr>`;
+    });
+    if(sec.footnote){
+      bodyRows+=`<tr class="fn"><td colspan="${baseCols+1}">＊${esc(sec.footnote)}</td></tr>`;
+    }
+    if(d.pc.secamt&&amt>0){
+      const subLabel=sec.optional
+        ? (LANG==='en'?'Optional Total':'加值小計')
+        : T('pdf_subtotal');
+      bodyRows+=`<tr class="pkg-amt-row${sec.optional?' pkg-amt-opt':''}"><td colspan="${baseCols+1}">
+        <span class="pkg-amt-label">${L}. ${esc(secName)}　${subLabel}</span>
+        <span class="pkg-amt-val">${c}&nbsp;${fmt(amt)}</span>
+      </td></tr>`;
+    }
+  });
+
   const disc=t.disc>0?`<tr><td>${T('pdf_discount')}｜</td><td>- ${c}&nbsp;${fmt(t.disc)}</td></tr>`:'';
   const taxR=t.taxR>0?`<tr><td>${T('pdf_tax')}(${t.taxR}%)｜</td><td>${c}&nbsp;${fmt(t.tax)}</td></tr>`:'';
   const bankText=LANG==='en'?(d.bankInfoEn||d.bankInfo||''):(d.bankInfo||'');
@@ -1828,24 +1772,20 @@ function rQDoc(d,t){
     ${A.wordmark?`<img src="${A.wordmark}" alt="wordmark" class="page-footer-wm">`:'<span></span>'}
   </div>`;
 
-  return pages.map((pageRows,pi)=>{
-    const isFirst=pi===0,isLast=pi===pages.length-1;
-    const rowsHtml=pageRows.map(r=>r.html).join('');
-    return`<div class="page${isFirst?'':' qt-cont-page'}">
-    ${isFirst?bm:''}
-    ${isFirst?custHtml:''}
+  return`<div class="page">
+    ${bm}
+    ${custHtml}
     <table class="qt">
       ${colgroupHtml}
       ${theadHtml}
-      <tbody>${rowsHtml}</tbody>
+      <tbody>${bodyRows}</tbody>
     </table>
-    ${isLast?botHtml:''}
+    ${botHtml}
     ${pgFooter}
   </div>`;
-  }).join('');
 }
 
-// Keep rQPage as legacy alias (used nowhere now but avoids ReferenceError)
+// Legacy alias — some old call sites may reference rQPage.
 function rQPage(d,t,grps,pn,total,isLast){return rQDoc(d,t)}
 
 
